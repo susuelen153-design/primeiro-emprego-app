@@ -110,7 +110,12 @@ const DICAS_ENTREVISTA = [
 function callClaude(messages, systemPrompt) {
   return fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      "anthropic-version": "2023-06-01",
+      "anthropic-dangerous-direct-browser-access": "true",
+      "x-api-key": localStorage.getItem("anthropic_key") || "",
+    },
     body: JSON.stringify({
       model: "claude-sonnet-4-6",
       max_tokens: 1000,
@@ -152,6 +157,58 @@ function Badge({ text, color, bg }) {
 // ──────────────────────────────────────────────
 // SCREENS
 // ──────────────────────────────────────────────
+
+function ConfigApiKey({ onSave }) {
+  const [key, setKey] = useState(localStorage.getItem("anthropic_key") || "");
+  const [erro, setErro] = useState("");
+
+  const salvar = () => {
+    if (!key.startsWith("sk-ant-")) {
+      setErro("Chave inválida. Deve começar com sk-ant-...");
+      return;
+    }
+    localStorage.setItem("anthropic_key", key);
+    onSave();
+  };
+
+  return (
+    <div style={{ textAlign: "center", padding: "20px 0 24px" }}>
+      <div style={{ fontSize: 48, marginBottom: 8 }}>🔑</div>
+      <h2 style={{ fontSize: 20, fontWeight: 800, color: "#1F2937", marginBottom: 8 }}>Configure sua chave de IA</h2>
+      <p style={{ fontSize: 13, color: "#6B7280", marginBottom: 6, lineHeight: 1.6 }}>
+        Para gerar currículos com IA, você precisa de uma chave da Anthropic.<br/>
+        É gratuita para começar — crie em{" "}
+        <a href="https://console.anthropic.com" target="_blank" rel="noreferrer" style={{ color: "#7C3AED", fontWeight: 700 }}>
+          console.anthropic.com
+        </a>
+      </p>
+      <div style={{ background: "#FFFBEB", border: "1px solid #FDE68A", borderRadius: 10, padding: "10px 14px", marginBottom: 16, textAlign: "left", fontSize: 12, color: "#92400E" }}>
+        <b>Como pegar sua chave:</b><br/>
+        1. Acesse console.anthropic.com → faça login<br/>
+        2. Clique em "API Keys" → "Create Key"<br/>
+        3. Copie a chave (começa com sk-ant-...) e cole abaixo
+      </div>
+      <input
+        type="password"
+        placeholder="sk-ant-api03-..."
+        value={key}
+        onChange={(e) => { setKey(e.target.value); setErro(""); }}
+        style={{ width: "100%", padding: "12px 14px", borderRadius: 10, border: `1.5px solid ${erro ? "#EF4444" : "#E5E7EB"}`, fontSize: 13, outline: "none", boxSizing: "border-box", fontFamily: "inherit", marginBottom: 8 }}
+      />
+      {erro && <p style={{ color: "#EF4444", fontSize: 12, marginBottom: 8 }}>{erro}</p>}
+      <button
+        onClick={salvar}
+        disabled={!key}
+        style={{ background: key ? "linear-gradient(135deg, #7C3AED, #EC4899)" : "#D1D5DB", color: "#fff", border: "none", borderRadius: 12, padding: "13px 24px", fontSize: 15, fontWeight: 700, cursor: key ? "pointer" : "not-allowed", width: "100%" }}
+      >
+        Salvar e continuar ✨
+      </button>
+      <p style={{ fontSize: 11, color: "#9CA3AF", marginTop: 10 }}>
+        🔒 Sua chave fica salva só no seu navegador, nunca é enviada a nenhum servidor nosso.
+      </p>
+    </div>
+  );
+}
 
 function Inicio({ onNext }) {
   return (
@@ -736,6 +793,7 @@ Linguagem jovem, motivadora, com emojis.`;
 // ──────────────────────────────────────────────
 
 export default function App() {
+  const [apiKey, setApiKey] = useState(localStorage.getItem("anthropic_key") || "");
   const [step, setStep] = useState("inicio");
   const [dados, setDados] = useState({});
   const [interesses, setInteresses] = useState([]);
@@ -753,19 +811,24 @@ export default function App() {
     <div style={{ maxWidth: 600, margin: "0 auto", padding: "16px 16px 40px", fontFamily: "'Inter', system-ui, sans-serif" }}>
       <h2 className="sr-only">PrimeiroEmprego — Plataforma de orientação de carreira para adolescentes</h2>
 
-      {step !== "inicio" && <ProgressBar step={step} />}
+      {!apiKey && <ConfigApiKey onSave={() => setApiKey(localStorage.getItem("anthropic_key") || "")} />}
 
-      {step === "inicio" && <Inicio onNext={() => go("perfil")} />}
-      {step === "perfil" && <Perfil dados={dados} onChange={updateDados} onNext={() => go("interesses")} />}
-      {step === "interesses" && <Interesses selecionados={interesses} onToggle={toggleInteresse} onNext={() => go("competencias")} onBack={() => go("perfil")} />}
-      {step === "competencias" && <Competencias selecionadas={competencias} onToggle={toggleComp} experiencias={experiencias} onExpChange={updateExp} onNext={() => go("curriculo")} onBack={() => go("interesses")} />}
-      {step === "curriculo" && (
+      {apiKey && (
         <>
-          <h2 style={{ fontSize: 22, fontWeight: 800, color: "#1F2937", marginBottom: 4 }}>Seu perfil completo 🌟</h2>
-          <p style={{ color: "#6B7280", fontSize: 13, marginBottom: 16 }}>
-            Olá, <strong>{dados.nome?.split(" ")[0]}</strong>! Geramos tudo pra você. Explore as abas abaixo!
-          </p>
-          <GerarCurriculo dados={dados} interesses={interesses} competencias={competencias} experiencias={experiencias} />
+          {step !== "inicio" && <ProgressBar step={step} />}
+          {step === "inicio" && <Inicio onNext={() => go("perfil")} />}
+          {step === "perfil" && <Perfil dados={dados} onChange={updateDados} onNext={() => go("interesses")} />}
+          {step === "interesses" && <Interesses selecionados={interesses} onToggle={toggleInteresse} onNext={() => go("competencias")} onBack={() => go("perfil")} />}
+          {step === "competencias" && <Competencias selecionadas={competencias} onToggle={toggleComp} experiencias={experiencias} onExpChange={updateExp} onNext={() => go("curriculo")} onBack={() => go("interesses")} />}
+          {step === "curriculo" && (
+            <>
+              <h2 style={{ fontSize: 22, fontWeight: 800, color: "#1F2937", marginBottom: 4 }}>Seu perfil completo 🌟</h2>
+              <p style={{ color: "#6B7280", fontSize: 13, marginBottom: 16 }}>
+                Olá, <strong>{dados.nome?.split(" ")[0]}</strong>! Geramos tudo pra você. Explore as abas abaixo!
+              </p>
+              <GerarCurriculo dados={dados} interesses={interesses} competencias={competencias} experiencias={experiencias} />
+            </>
+          )}
         </>
       )}
     </div>
