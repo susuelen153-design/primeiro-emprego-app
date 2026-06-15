@@ -1,53 +1,54 @@
-# primeiro-emprego-app
-App para Jovens que estão em busca de um primeiro emprego
-# 🚀 Primeiro Emprego
+# 🚀 PrimeiroEmprego
 
-Plataforma gratuita para jovens que estão buscando o primeiro emprego. Desenvolvida para ajudar com as dúvidas mais comuns: como montar um currículo sem experiência, como se sair bem na entrevista, e a diferença entre estágio e jovem aprendiz.
+Plataforma gratuita para adolescentes e jovens conquistarem o primeiro emprego. Desenvolvida com React + IA (Claude).
 
 ## ✨ O que o app faz
 
-- **Currículo gerado por IA** — com base no perfil real da pessoa, sem inventar dados
-- **Apoio na escrita** — IA sugere melhorias de ortografia e clareza enquanto o usuário escreve
-- **Horário de estudos** — captura o turno e gera disponibilidade automática no currículo
-- **Dicas de entrevista** — orientações práticas e diretas
-- **Dúvidas frequentes** — as perguntas reais que jovens têm (currículo, entrevista, jovem aprendiz, mercado)
-- **Lista de cursos gratuitos** — FGV, FIAP, Bradesco, Google, Microsoft, IBM e mais
-- **Chat com IA** — para perguntas livres sobre carreira e mercado de trabalho
+- **Descobre seus interesses** — áreas como tecnologia, comunicação, negócios e mais
+- **Revela suas competências** — com exemplos do dia a dia (escola, família, comunidade)
+- **Gera currículo com IA** — personalizado, sem inventar dados
+- **Dicas de entrevista** — linguagem jovem e prática
+- **Guia de cursos gratuitos** — Bradesco, Google, IBM, Microsoft, SENAI e mais
+- **Chat com assistente de carreira** — tire dúvidas em tempo real
 
 ## 🛠️ Tecnologias
 
-- React
-- Tailwind CSS (classes utilitárias)
-- API da Anthropic (Claude Sonnet)
+- [React 18](https://react.dev/)
+- [Anthropic Claude API](https://www.anthropic.com/) — geração de currículo e chat
+- CSS-in-JS (sem dependências de estilo externas)
 
 ## 🚀 Como rodar localmente
 
 ```bash
 # Clone o repositório
-git clone https://github.com/SEU_USUARIO/primeiro-emprego-app.git
+git clone https://github.com/susuelen153-design/primeiro-emprego-app.git
 cd primeiro-emprego-app
 
 # Instale as dependências
 npm install
 
 # Rode o projeto
-npm run dev
+npm start
 ```
+
+## 🌐 Deploy (Vercel — recomendado)
+
+1. Acesse [vercel.com](https://vercel.com) e faça login com GitHub
+2. Clique em **Add New Project**
+3. Selecione este repositório
+4. Clique em **Deploy** — pronto! ✅
 
 ## 📁 Estrutura
 
 ```
-/
+primeiro-emprego-app/
+├── public/
+│   └── index.html
 ├── src/
-│   └── App.jsx        # Componente principal
+│   ├── App.jsx       ← todo o app está aqui
+│   └── index.js
 ├── package.json
 └── README.md
 ```
 
-## 🤝 Contribuindo
-
-Sugestões e melhorias são bem-vindas! Abra uma issue ou envie um pull request.
-
-## 📄 Licença
-
-MIT — use, adapte e compartilhe à vontade.
+## 💜 Feito com carinho para jovens brasileiros
