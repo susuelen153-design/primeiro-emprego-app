@@ -147,13 +147,7 @@ function Badge({ text, color, bg }) {
   );
 }
 
-function Card({ children, style }) {
-  return (
-    <div style={{ background: "#fff", border: "1px solid #E5E7EB", borderRadius: 16, padding: "20px 24px", ...style }}>
-      {children}
-    </div>
-  );
-}
+
 
 // ──────────────────────────────────────────────
 // SCREENS
@@ -352,7 +346,7 @@ function Competencias({ selecionadas, onToggle, experiencias, onExpChange, onNex
       <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 20 }}>
         {COMPETENCIAS.map((comp) => {
           const sel = selecionadas.includes(comp.id);
-          const isExp = expanded === comp.id;
+
           return (
             <div key={comp.id} style={{ border: `2px solid ${sel ? COLORS.purple : "#E5E7EB"}`, borderRadius: 14, overflow: "hidden", transition: "border-color 0.2s" }}>
               <div
