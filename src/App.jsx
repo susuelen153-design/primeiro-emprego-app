@@ -541,8 +541,9 @@ Escreve como um amigo mais velho conversando, sem frases motivacionais forçadas
   const baixarWord = () => {
     const html = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word'><head><meta charset='utf-8'><style>
 body{font-family:Calibri,Arial,sans-serif;font-size:11pt;margin:2.5cm;color:#1E293B;line-height:1.5}
-.nome{font-size:22pt;font-weight:bold;color:#1E293B;text-align:center;margin:0 0 4pt;padding-bottom:8pt;border-bottom:2pt solid #2563EB}
-.contato{font-size:10pt;color:#475569;text-align:center;margin:4pt 0 16pt}
+.nome{font-size:26pt;font-weight:900;color:#1E293B;text-align:center;margin:0 0 2pt;border:none}
+.subdados{font-size:8pt;color:#94A3B8;text-align:center;text-transform:uppercase;letter-spacing:1pt;border-bottom:2pt solid #2563EB;padding-bottom:6pt;margin:0 0 14pt}
+.contato{font-size:10pt;color:#475569;text-align:center;margin:4pt 0 6pt}
 .secao{font-size:9pt;font-weight:bold;color:#2563EB;text-transform:uppercase;letter-spacing:1pt;border-bottom:1pt solid #E2E8F0;padding-bottom:3pt;margin:14pt 0 6pt}
 p{margin:2pt 0}
 </style></head><body>
@@ -604,9 +605,13 @@ ${curriculo.split("\n").map((line, i) => {
               const isNome = i === 0;
               const isContato = i === 1 && (line.includes("@") || line.includes("|"));
               const isSecao = !isNome && !isContato && /^[A-ZÁÀÂÃÉÊÍÓÔÕÚÇ][A-ZÁÀÂÃÉÊÍÓÔÕÚÇ\s]{3,}$/.test(line.trim());
-              if (isNome) return <h2 key={i} style={{ fontSize: 22, fontWeight: 800, color: "#1E293B", margin: "0 0 4px", textAlign: "center", borderBottom: "2px solid #2563EB", paddingBottom: 8 }}>{line}</h2>;
-              if (isContato) return <p key={i} style={{ fontSize: 11, color: "#475569", textAlign: "center", margin: "4px 0 16px" }}>{line}</p>;
-              if (isSecao) return <div key={i} style={{ fontSize: 9, fontWeight: 800, color: "#2563EB", textTransform: "uppercase", letterSpacing: 1, borderBottom: "1px solid #E2E8F0", paddingBottom: 3, marginTop: 14, marginBottom: 6 }}>{line}</div>;
+              if (isNome) return <div key={i} style={{ textAlign: "center", marginBottom: 2 }}><h1 style={{ fontSize: 26, fontWeight: 900, color: "#1E293B", margin: 0 }}>{line}</h1></div>;
+              if (isContato) return <p key={i} style={{ fontSize: 11, color: "#475569", textAlign: "center", margin: "4px 0 6px" }}>{line}</p>;
+              if (isSecao) {
+                const isDadosPessoais = line.trim().toUpperCase() === "DADOS PESSOAIS";
+                if (isDadosPessoais) return <div key={i} style={{ fontSize: 9, color: "#94A3B8", textAlign: "center", textTransform: "uppercase", letterSpacing: 1, marginBottom: 12, borderBottom: "2px solid #2563EB", paddingBottom: 8 }}>{line}</div>;
+                return <div key={i} style={{ fontSize: 9, fontWeight: 800, color: "#2563EB", textTransform: "uppercase", letterSpacing: 1, borderBottom: "1px solid #E2E8F0", paddingBottom: 3, marginTop: 14, marginBottom: 6 }}>{line}</div>;
+              }
               return <p key={i} style={{ fontSize: 12, color: "#1E293B", lineHeight: 1.7, margin: "2px 0" }}>{line}</p>;
             })}
           </div>
@@ -710,9 +715,10 @@ export default function App() {
   };
 
   return (
-    <div style={{ maxWidth: 580, margin: "0 auto", padding: "16px 16px 48px", fontFamily: "'Inter', system-ui, sans-serif", background: C.bg, minHeight: "100vh", color: C.white }}>
+    <div style={{ maxWidth: 640, margin: "0 auto", padding: "16px 16px 48px", fontFamily: "'Inter', system-ui, sans-serif", background: C.bg, minHeight: "100vh", color: C.white, width: "100%" }}>
       <style>{`
-        * { box-sizing: border-box; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body, #root { background: #0F0F1A; min-height: 100vh; width: 100%; }
         input::placeholder { color: #475569; }
         select option { background: #1A1A2E; color: #F1F5F9; }
         ::-webkit-scrollbar { width: 4px; }
