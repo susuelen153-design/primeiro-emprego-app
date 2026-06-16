@@ -108,25 +108,13 @@ const DICAS_ENTREVISTA = [
 ];
 
 async function callClaude(messages, systemPrompt) {
-  const msgs = [
-    { role: "system", content: systemPrompt },
-    ...messages,
-  ];
-
-  const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+  const res = await fetch("/api/gerar", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${process.env.REACT_APP_GROQ_KEY}`,
-    },
-    body: JSON.stringify({
-      model: "llama-3.3-70b-versatile",
-      messages: msgs,
-      max_tokens: 1500,
-    }),
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ messages, systemPrompt }),
   });
   const data = await res.json();
-  const text = data?.choices?.[0]?.message?.content || "Erro ao gerar resposta.";
+  const text = data?.text || "Erro ao gerar resposta.";
   return { content: [{ type: "text", text }] };
 }
 
