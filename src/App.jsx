@@ -107,28 +107,26 @@ const DICAS_ENTREVISTA = [
   { titulo: "Agradeça após a entrevista", icon: "🙏", dica: "Um WhatsApp ou e-mail agradecendo deixa boa impressão e poucos fazem isso!", cor: COLORS.green },
 ];
 
-const GEMINI_KEY = process.env.REACT_APP_GEMINI_KEY || "";
-
 async function callClaude(messages, systemPrompt) {
-  const contents = messages.map((m) => ({
-    role: m.role === "assistant" ? "model" : "user",
-    parts: [{ text: m.content }],
-  }));
+  const msgs = [
+    { role: "system", content: systemPrompt },
+    ...messages,
+  ];
 
-  const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        system_instruction: { parts: [{ text: systemPrompt }] },
-        contents,
-        generationConfig: { maxOutputTokens: 1500 },
-      }),
-    }
-  );
+  const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${process.env.REACT_APP_GROQ_KEY}`,
+    },
+    body: JSON.stringify({
+      model: "llama-3.3-70b-versatile",
+      messages: msgs,
+      max_tokens: 1500,
+    }),
+  });
   const data = await res.json();
-  const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || "Erro ao gerar resposta.";
+  const text = data?.choices?.[0]?.message?.content || "Erro ao gerar resposta.";
   return { content: [{ type: "text", text }] };
 }
 
