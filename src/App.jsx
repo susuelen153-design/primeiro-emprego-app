@@ -1,408 +1,393 @@
 import { useState, useRef, useEffect } from "react";
 
-const COLORS = {
-  purple: "#7C3AED",
-  purpleLight: "#EDE9FE",
-  pink: "#EC4899",
-  pinkLight: "#FDF2F8",
-  yellow: "#F59E0B",
-  yellowLight: "#FFFBEB",
-  green: "#10B981",
-  greenLight: "#ECFDF5",
-  blue: "#3B82F6",
-  blueLight: "#EFF6FF",
-  orange: "#F97316",
-  orangeLight: "#FFF7ED",
+const P = "#2563EB"; // azul profissional
+const PL = "#EFF6FF";
+const DARK = "#1E293B";
+const GRAY = "#64748B";
+const LGRAY = "#F1F5F9";
+const WHITE = "#FFFFFF";
+const GREEN = "#16A34A";
+const BORDER = "#E2E8F0";
+
+const STEPS = ["inicio", "perfil", "quiz", "curriculo"];
+
+// ── QUIZ DE PERFIL ──────────────────────────────────────
+const QUIZ = [
+  {
+    id: "q1",
+    pergunta: "Quando tem um trabalho em grupo na escola, você geralmente:",
+    opcoes: [
+      { texto: "Organiza as tarefas e cuida dos prazos", comps: ["organizacao", "lideranca"] },
+      { texto: "Anima o grupo e mantém todo mundo motivado", comps: ["comunicacao", "equipe"] },
+      { texto: "Pesquisa e traz as melhores ideias", comps: ["criatividade", "aprendizado"] },
+      { texto: "Garante que tudo seja feito direitinho", comps: ["responsabilidade", "organizacao"] },
+    ],
+  },
+  {
+    id: "q2",
+    pergunta: "Quando surge um problema que ninguém sabe resolver, você:",
+    opcoes: [
+      { texto: "Toma a frente e propõe uma solução", comps: ["proatividade", "lideranca"] },
+      { texto: "Conversa com todos para entender o problema", comps: ["comunicacao", "equipe"] },
+      { texto: "Pesquisa sozinho até encontrar a resposta", comps: ["aprendizado", "responsabilidade"] },
+      { texto: "Pensa em algo criativo e diferente", comps: ["criatividade", "proatividade"] },
+    ],
+  },
+  {
+    id: "q3",
+    pergunta: "No seu dia a dia, o que as pessoas mais pedem sua ajuda?",
+    opcoes: [
+      { texto: "Para explicar ou ensinar algo", comps: ["comunicacao", "aprendizado"] },
+      { texto: "Para organizar eventos ou atividades", comps: ["organizacao", "lideranca"] },
+      { texto: "Para criar algo diferente ou bonito", comps: ["criatividade", "proatividade"] },
+      { texto: "Para resolver problemas práticos", comps: ["responsabilidade", "equipe"] },
+    ],
+  },
+  {
+    id: "q4",
+    pergunta: "Como você prefere aprender coisas novas?",
+    opcoes: [
+      { texto: "Assistindo tutoriais e praticando sozinho", comps: ["aprendizado", "proatividade"] },
+      { texto: "Com alguém me ensinando e tirando dúvidas", comps: ["comunicacao", "equipe"] },
+      { texto: "Tentando e errando até acertar", comps: ["responsabilidade", "criatividade"] },
+      { texto: "Lendo e me organizando com anotações", comps: ["organizacao", "aprendizado"] },
+    ],
+  },
+  {
+    id: "q5",
+    pergunta: "Quando você tem um prazo para entregar algo importante:",
+    opcoes: [
+      { texto: "Já começo antes do tempo e entrego cedo", comps: ["proatividade", "organizacao"] },
+      { texto: "Me organizo bem e entrego no prazo certo", comps: ["responsabilidade", "organizacao"] },
+      { texto: "Peço ajuda se precisar e termino junto", comps: ["equipe", "comunicacao"] },
+      { texto: "Me concentro e dou meu melhor até o fim", comps: ["responsabilidade", "aprendizado"] },
+    ],
+  },
+  {
+    id: "q6",
+    pergunta: "O que você mais gosta de fazer no tempo livre?",
+    opcoes: [
+      { texto: "Criar conteúdo, desenhar ou inventar coisas", comps: ["criatividade", "proatividade"] },
+      { texto: "Ajudar amigos ou família com algo", comps: ["equipe", "responsabilidade"] },
+      { texto: "Aprender algo novo por conta própria", comps: ["aprendizado", "proatividade"] },
+      { texto: "Organizar, planejar ou montar algo", comps: ["organizacao", "lideranca"] },
+    ],
+  },
+];
+
+const COMP_INFO = {
+  comunicacao:     { label: "Comunicação",            emoji: "🗣️", desc: "Você sabe se expressar com clareza, seja falando ou escrevendo. Isso é muito valorizado em atendimento, vendas e trabalho em equipe." },
+  equipe:          { label: "Trabalho em Equipe",     emoji: "🤝", desc: "Você colabora bem com outras pessoas e sabe que juntos chegamos mais longe. Empresas adoram quem constrói boas relações." },
+  organizacao:     { label: "Organização",            emoji: "📋", desc: "Você planeja, prioriza e cumpre prazos. Essa competência é essencial em qualquer área profissional." },
+  proatividade:    { label: "Proatividade",           emoji: "🚀", desc: "Você age antes de ser pedido e vai além do esperado. Profissionais proativos se destacam rapidamente." },
+  criatividade:    { label: "Criatividade",           emoji: "💡", desc: "Você pensa fora da caixa e encontra soluções inovadoras. Muito valorizado em empresas modernas." },
+  responsabilidade:{ label: "Responsabilidade",       emoji: "✅", desc: "Você assume compromissos e os cumpre. Confiabilidade é a base de toda relação profissional." },
+  lideranca:       { label: "Liderança",              emoji: "👑", desc: "Você inspira e guia pessoas naturalmente. Mesmo sem cargo, líderes fazem a diferença em qualquer time." },
+  aprendizado:     { label: "Facilidade p/ Aprender", emoji: "🧠", desc: "Você absorve conhecimento rápido e se adapta. No mercado de hoje, quem aprende rápido sempre se destaca." },
 };
 
-const STEPS = ["inicio", "perfil", "interesses", "competencias", "curriculo"];
-
-const INTERESSE_AREAS = [
-  { id: "tecnologia", label: "Tecnologia & Games", emoji: "💻", desc: "Programação, design digital, redes, suporte técnico" },
-  { id: "pessoas", label: "Trabalhar com Pessoas", emoji: "🤝", desc: "Atendimento, vendas, recursos humanos, ensino" },
-  { id: "criatividade", label: "Criatividade & Arte", emoji: "🎨", desc: "Design, comunicação, moda, publicidade" },
-  { id: "numeros", label: "Números & Negócios", emoji: "📊", desc: "Financeiro, administrativo, contabilidade, logística" },
-  { id: "natureza", label: "Natureza & Saúde", emoji: "🌿", desc: "Biologia, nutrição, esportes, meio ambiente" },
-  { id: "comunicacao", label: "Comunicação & Mídia", emoji: "📱", desc: "Redes sociais, jornalismo, marketing, influência" },
-];
-
-const COMPETENCIAS = [
-  {
-    id: "comunicacao",
-    label: "Comunicação",
-    emoji: "🗣️",
-    desc: "Saber expressar ideias de forma clara, oral ou escrita.",
-    exemplos: ["Apresentações na escola", "Vender produtos para amigos/família", "Gravar vídeos ou stories"],
-  },
-  {
-    id: "equipe",
-    label: "Trabalho em equipe",
-    emoji: "👥",
-    desc: "Colaborar com outras pessoas para alcançar um objetivo.",
-    exemplos: ["Trabalhos em grupo na escola", "Times esportivos", "Projetos da igreja ou comunidade"],
-  },
-  {
-    id: "organizacao",
-    label: "Organização",
-    emoji: "📋",
-    desc: "Planejar tarefas, cumprir prazos e manter tudo em ordem.",
-    exemplos: ["Organizar eventos", "Cuidar de irmãos/casa", "Administrar próprio estudo"],
-  },
-  {
-    id: "proatividade",
-    label: "Proatividade",
-    emoji: "🚀",
-    desc: "Tomar iniciativa sem esperar ser mandado.",
-    exemplos: ["Aprender algo novo sozinho", "Montar um negócio próprio", "Ajudar sem ser pedido"],
-  },
-  {
-    id: "criatividade",
-    label: "Criatividade",
-    emoji: "💡",
-    desc: "Pensar em soluções novas e diferentes.",
-    exemplos: ["Projetos pessoais", "Artes manuais", "Criação de conteúdo"],
-  },
-  {
-    id: "responsabilidade",
-    label: "Responsabilidade",
-    emoji: "✅",
-    desc: "Cumprir compromissos e assumir as consequências.",
-    exemplos: ["Cumprir horários", "Entregar trabalhos no prazo", "Cuidar de alguém da família"],
-  },
-  {
-    id: "lideranca",
-    label: "Liderança",
-    emoji: "👑",
-    desc: "Inspirar e guiar outras pessoas em direção a um objetivo.",
-    exemplos: ["Representante de turma", "Capitão de time", "Organizar grupo de amigos"],
-  },
-  {
-    id: "aprendizado",
-    label: "Facilidade p/ aprender",
-    emoji: "🧠",
-    desc: "Absorver novos conhecimentos e se adaptar rápido.",
-    exemplos: ["Cursos por conta própria", "Aprender a usar apps novos", "Interesse em temas variados"],
-  },
-];
-
-const CURSOS_GRATUITOS = [
-  { nome: "Escola Virtual Bradesco", url: "https://www.ev.org.br/cursos", areas: "Informática, Administração, IA, Inglês — +88 cursos gratuitos com certificado", badge: "🏆 Certificado" },
-  { nome: "SENAI Play", url: "https://play.senai.br/cursos", areas: "Tecnologia, Indústria, Qualidade — cursos rápidos online", badge: "🔧 Técnico" },
-  { nome: "Google Skillshop", url: "https://skillshop.withgoogle.com", areas: "Marketing Digital, Google Ads, Analytics, IA — certificado Google", badge: "📱 Google" },
-  { nome: "Cursos Google (Coursera)", url: "https://www.coursera.org/google", areas: "TI, Cibersegurança, Dados, UX — bolsas disponíveis", badge: "🌍 Internacional" },
-  { nome: "SEBRAE Cursos Online", url: "https://www.sebrae.com.br/sites/PortalSebrae/cursosonline", areas: "Empreendedorismo, Vendas, Gestão — todos gratuitos", badge: "💼 Negócios" },
-  { nome: "Khan Academy", url: "https://pt.khanacademy.org/search?referer=%2F&page_search_query=curso", areas: "Matemática, Programação, Ciências — 100% gratuito", badge: "📚 Educação" },
-  { nome: "Microsoft Learn", url: "https://learn.microsoft.com/pt-br/training/browse", areas: "Azure, Office, Power BI, IA — certificações Microsoft", badge: "💻 Microsoft" },
-  { nome: "IBM SkillsBuild", url: "https://skillsbuild.org/pt-BR", areas: "IA, Dados, Cibersegurança, Cloud — certificado IBM", badge: "🤖 IBM" },
+const CURSOS = [
+  { nome: "Escola Virtual Bradesco", url: "https://www.ev.org.br/cursos", areas: "Informática, Administração, IA, Inglês — +88 cursos gratuitos", badge: "Gratuito" },
+  { nome: "SENAI Play", url: "https://play.senai.br/cursos", areas: "Tecnologia, Indústria, Qualidade", badge: "Gratuito" },
+  { nome: "Google Skillshop", url: "https://skillshop.withgoogle.com", areas: "Marketing Digital, Analytics, IA — certificado Google", badge: "Gratuito" },
+  { nome: "Microsoft Learn", url: "https://learn.microsoft.com/pt-br/training/browse", areas: "Office, Power BI, Azure, IA", badge: "Gratuito" },
+  { nome: "IBM SkillsBuild", url: "https://skillsbuild.org/pt-BR", areas: "IA, Dados, Cibersegurança, Cloud", badge: "Gratuito" },
+  { nome: "Khan Academy", url: "https://pt.khanacademy.org", areas: "Matemática, Programação, Ciências", badge: "Gratuito" },
+  { nome: "SEBRAE Online", url: "https://www.sebrae.com.br/sites/PortalSebrae/cursosonline", areas: "Empreendedorismo, Vendas, Gestão", badge: "Gratuito" },
+  { nome: "Coursera (Google)", url: "https://www.coursera.org/google", areas: "TI, Dados, UX, Cibersegurança — bolsas disponíveis", badge: "Gratuito" },
 ];
 
 const DICAS_ENTREVISTA = [
-  { titulo: "Vista-se com conforto e cuidado", icon: "✨", dica: "Use o que te deixa confortável e confiante! Só evite bonés, regatas e chinelos — prefira algo arrumado que mostre respeito pelo momento.", cor: COLORS.purple },
-  { titulo: "Chega antes do horário", icon: "⏰", dica: "Apareça 10-15 min antes. Atrasar é péssima impressão — pesquise o trajeto antes!", cor: COLORS.blue },
-  { titulo: "Pesquise a empresa", icon: "🔍", dica: "Saiba o que ela faz, seus valores. Isso mostra interesse real e te diferencia.", cor: COLORS.green },
-  { titulo: "Olho no olho & aperto firme", icon: "👋", dica: "Cumprimento firme e contato visual transmite confiança. Treine antes!", cor: COLORS.orange },
-  { titulo: "Fala dos seus exemplos reais", icon: "💬", dica: "Use situações reais: escola, voluntariado, vendas, família. Experiência não é só CLT!", cor: COLORS.pink },
-  { titulo: "Não fale mal de ninguém", icon: "🤐", dica: "Mesmo de escola, família, amigo. Mostra maturidade e profissionalismo.", cor: COLORS.yellow },
-  { titulo: "Pergunte sobre a vaga", icon: "❓", dica: "\"Quais as maiores qualidades que buscam?\" Mostra que você está engajado.", cor: COLORS.purple },
-  { titulo: "Agradeça após a entrevista", icon: "🙏", dica: "Um WhatsApp ou e-mail agradecendo deixa boa impressão e poucos fazem isso!", cor: COLORS.green },
+  { icon: "✨", titulo: "Vista-se com conforto e respeito", dica: "Use o que te deixa confiante! Prefira roupas arrumadas — evite bonés, regatas e chinelos. Não precisa ser formal, só demonstrar cuidado." },
+  { icon: "⏰", titulo: "Chegue antes do horário", dica: "Apareça 10-15 minutos antes. Pesquise o trajeto com antecedência. Pontualidade já é um diferencial enorme!" },
+  { icon: "🔍", titulo: "Pesquise a empresa antes", dica: "Saiba o que ela faz e quais são seus valores. Quando perguntarem 'por que quer trabalhar aqui?', você vai arrasar." },
+  { icon: "💬", titulo: "Use exemplos reais da sua vida", dica: "Experiência não é só emprego formal. Conte sobre vendas que fez, projetos da escola, trabalho voluntário, cuidados com a família." },
+  { icon: "👀", titulo: "Contato visual e postura", dica: "Olhe nos olhos ao falar, sente-se ereto e sorria. Linguagem corporal transmite confiança mesmo quando você está nervoso." },
+  { icon: "❓", titulo: "Pergunte sobre a vaga", dica: "'Quais as principais responsabilidades do cargo?' Fazer perguntas mostra interesse e maturidade profissional." },
+  { icon: "🤐", titulo: "Nunca fale mal de ninguém", dica: "Nem de escola, nem de professor, nem de amigos. Isso demonstra maturidade e profissionalismo." },
+  { icon: "🙏", titulo: "Agradeça após a entrevista", dica: "Um WhatsApp ou e-mail agradecendo a oportunidade. Poucos fazem isso — e quem faz é lembrado!" },
 ];
 
-async function callClaude(messages, systemPrompt) {
+// ── API ─────────────────────────────────────────────────
+async function callIA(messages, systemPrompt) {
   const res = await fetch("/api/gerar", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ messages, systemPrompt }),
   });
   const data = await res.json();
-  const text = data?.text || "Erro ao gerar resposta.";
-  return { content: [{ type: "text", text }] };
+  return data?.text || "Erro ao gerar resposta.";
 }
 
-// ──────────────────────────────────────────────
-// COMPONENTS
-// ──────────────────────────────────────────────
+// ── GERAÇÃO DO CURRÍCULO (template local) ───────────────
+function gerarCurriculoTexto(dados, comps, respostasQuiz) {
+  const nome = dados.nome || "";
+  const contato = [dados.cidade, dados.telefone, dados.email].filter(Boolean).join("  |  ");
+  const formacao = dados.tipoFormacao && dados.serie
+    ? `${dados.tipoFormacao} — ${dados.serie}${dados.escola ? ` | ${dados.escola}` : ""}`
+    : dados.escola || "";
+
+  const compsList = comps.map(id => COMP_INFO[id]?.label).filter(Boolean);
+
+  return `${nome}
+${contato}
+${"─".repeat(60)}
+
+OBJETIVO PROFISSIONAL
+Busco minha primeira oportunidade profissional para aplicar minhas habilidades, aprender com profissionais experientes e contribuir com os resultados da equipe.
+
+${"─".repeat(60)}
+
+FORMAÇÃO ACADÊMICA
+${formacao || "A preencher"}
+${dados.cursos ? `\nCURSOS E CERTIFICAÇÕES\n${dados.cursos}` : ""}
+
+${"─".repeat(60)}
+
+COMPETÊNCIAS
+${compsList.map(c => `• ${c}`).join("\n")}
+
+${"─".repeat(60)}
+
+INFORMAÇÕES COMPLEMENTARES
+Disponibilidade: A combinar
+${dados.cidade ? `Localização: ${dados.cidade}` : ""}`;
+}
+
+// ── COMPONENTS ──────────────────────────────────────────
 
 function ProgressBar({ step }) {
-  const idx = STEPS.indexOf(step);
-  const pct = Math.round((idx / (STEPS.length - 1)) * 100);
+  const steps = [
+    { key: "inicio", label: "Início" },
+    { key: "perfil", label: "Perfil" },
+    { key: "quiz", label: "Quiz" },
+    { key: "curriculo", label: "Currículo" },
+  ];
+  const idx = steps.findIndex(s => s.key === step);
+  const pct = Math.round((idx / (steps.length - 1)) * 100);
   return (
-    <div style={{ width: "100%", marginBottom: 24 }}>
+    <div style={{ marginBottom: 24 }}>
       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-        {["Início", "Seu Perfil", "Interesses", "Competências", "Currículo"].map((l, i) => (
-          <span key={i} style={{ fontSize: 11, color: i <= idx ? COLORS.purple : "#9CA3AF", fontWeight: i <= idx ? 600 : 400, transition: "color 0.3s" }}>{l}</span>
+        {steps.map((s, i) => (
+          <span key={s.key} style={{ fontSize: 11, fontWeight: i <= idx ? 700 : 400, color: i <= idx ? P : GRAY }}>{s.label}</span>
         ))}
       </div>
-      <div style={{ height: 6, background: "#E5E7EB", borderRadius: 99, overflow: "hidden" }}>
-        <div style={{ height: "100%", width: `${pct}%`, background: `linear-gradient(90deg, ${COLORS.purple}, ${COLORS.pink})`, borderRadius: 99, transition: "width 0.5s ease" }} />
+      <div style={{ height: 4, background: BORDER, borderRadius: 99 }}>
+        <div style={{ height: "100%", width: `${pct}%`, background: P, borderRadius: 99, transition: "width 0.4s" }} />
       </div>
     </div>
   );
 }
 
-function Badge({ text, color, bg }) {
+function Btn({ children, onClick, disabled, outline, small }) {
   return (
-    <span style={{ background: bg, color, fontSize: 11, fontWeight: 700, padding: "3px 10px", borderRadius: 99, letterSpacing: 0.3 }}>{text}</span>
+    <button onClick={onClick} disabled={disabled} style={{
+      background: outline ? WHITE : disabled ? "#CBD5E1" : P,
+      color: outline ? P : WHITE,
+      border: outline ? `2px solid ${P}` : "none",
+      borderRadius: 10,
+      padding: small ? "9px 16px" : "13px 24px",
+      fontSize: small ? 13 : 15,
+      fontWeight: 700,
+      cursor: disabled ? "not-allowed" : "pointer",
+      fontFamily: "inherit",
+    }}>{children}</button>
   );
 }
 
-
-
-// ──────────────────────────────────────────────
-// SCREENS
-// ──────────────────────────────────────────────
-
+// ── TELA INÍCIO ─────────────────────────────────────────
 function Inicio({ onNext }) {
   return (
-    <div style={{ textAlign: "center", padding: "8px 0 24px" }}>
-      <div style={{ fontSize: 64, marginBottom: 8 }}>🚀</div>
-      <h1 style={{ fontSize: 28, fontWeight: 800, background: `linear-gradient(135deg, ${COLORS.purple}, ${COLORS.pink})`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", margin: "0 0 8px" }}>
-        PrimeiroEmprego
-      </h1>
-      <p style={{ fontSize: 16, color: "#6B7280", marginBottom: 28, lineHeight: 1.6 }}>
-        Sua jornada rumo ao primeiro emprego começa aqui! 🎯<br />
-        Descubra suas habilidades, monte seu currículo e se prepare pra arrasar na entrevista.
+    <div style={{ textAlign: "center", padding: "12px 0 24px" }}>
+      <div style={{ fontSize: 56, marginBottom: 8 }}>🚀</div>
+      <h1 style={{ fontSize: 26, fontWeight: 800, color: DARK, margin: "0 0 8px" }}>PrimeiroEmprego</h1>
+      <p style={{ fontSize: 15, color: GRAY, marginBottom: 28, lineHeight: 1.6 }}>
+        Descubra suas competências, monte seu currículo<br />e se prepare pra arrasar na entrevista!
       </p>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, marginBottom: 28 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, marginBottom: 28 }}>
         {[
-          { emoji: "🧠", label: "Descubra suas competências" },
-          { emoji: "📄", label: "Currículo pronto com IA" },
-          { emoji: "💡", label: "Dicas de entrevista" },
+          { emoji: "🧩", label: "Quiz de perfil" },
+          { emoji: "📄", label: "Currículo com IA" },
+          { emoji: "🎤", label: "Dicas de entrevista" },
         ].map((f, i) => (
-          <div key={i} style={{ background: COLORS.purpleLight, borderRadius: 12, padding: "16px 8px", textAlign: "center" }}>
-            <div style={{ fontSize: 28, marginBottom: 6 }}>{f.emoji}</div>
-            <div style={{ fontSize: 12, color: COLORS.purple, fontWeight: 600 }}>{f.label}</div>
+          <div key={i} style={{ background: PL, borderRadius: 12, padding: "14px 8px" }}>
+            <div style={{ fontSize: 26, marginBottom: 6 }}>{f.emoji}</div>
+            <div style={{ fontSize: 12, color: P, fontWeight: 700 }}>{f.label}</div>
           </div>
         ))}
       </div>
-      <button
-        onClick={onNext}
-        style={{ background: `linear-gradient(135deg, ${COLORS.purple}, ${COLORS.pink})`, color: "#fff", border: "none", borderRadius: 12, padding: "14px 36px", fontSize: 16, fontWeight: 700, cursor: "pointer", width: "100%", boxShadow: "0 4px 20px rgba(124,58,237,0.35)" }}
-      >
-        Começar agora! ✨
+      <button onClick={onNext} style={{ background: P, color: WHITE, border: "none", borderRadius: 12, padding: "14px", fontSize: 16, fontWeight: 700, cursor: "pointer", width: "100%" }}>
+        Começar agora →
       </button>
     </div>
   );
 }
 
-const TIPOS_FORMACAO = [
-  "Ensino Fundamental",
-  "Ensino Médio",
-  "Ensino Médio Técnico",
-  "EJA (Educação de Jovens e Adultos)",
-  "Curso Técnico",
-  "Graduação (Faculdade)",
-];
-
-const SERIES_POR_TIPO = {
+// ── TELA PERFIL ─────────────────────────────────────────
+const TIPOS_FORMACAO = ["Ensino Fundamental", "Ensino Médio", "Ensino Médio Técnico", "EJA", "Curso Técnico", "Graduação"];
+const SERIES = {
   "Ensino Fundamental": ["6º ano", "7º ano", "8º ano", "9º ano", "Concluído"],
   "Ensino Médio": ["1º ano", "2º ano", "3º ano", "Concluído"],
   "Ensino Médio Técnico": ["1º ano", "2º ano", "3º ano", "Concluído"],
-  "EJA (Educação de Jovens e Adultos)": ["1ª etapa", "2ª etapa", "3ª etapa", "Concluído"],
+  "EJA": ["1ª etapa", "2ª etapa", "3ª etapa", "Concluído"],
   "Curso Técnico": ["1º semestre", "2º semestre", "3º semestre", "4º semestre", "Concluído"],
-  "Graduação (Faculdade)": ["1º semestre", "2º semestre", "3º semestre", "4º semestre", "5º semestre", "6º semestre", "7º semestre", "8º semestre", "Concluído"],
+  "Graduação": ["1º semestre", "2º semestre", "3º semestre", "4º semestre", "5º semestre", "6º semestre", "7º semestre", "8º semestre", "Concluído"],
 };
 
+const inputStyle = {
+  width: "100%", padding: "10px 12px", borderRadius: 8,
+  border: `1.5px solid ${BORDER}`, fontSize: 14, outline: "none",
+  fontFamily: "inherit", boxSizing: "border-box", background: WHITE,
+};
 const selectStyle = {
-  width: "100%",
-  padding: "10px 14px",
-  borderRadius: 10,
-  border: "1.5px solid #E5E7EB",
-  fontSize: 14,
-  outline: "none",
-  boxSizing: "border-box",
-  fontFamily: "inherit",
-  background: "#fff",
-  appearance: "none",
-  backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236B7280' d='M6 8L1 3h10z'/%3E%3C/svg%3E")`,
-  backgroundRepeat: "no-repeat",
-  backgroundPosition: "right 14px center",
-  cursor: "pointer",
+  ...inputStyle, appearance: "none",
+  backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748B' d='M6 8L1 3h10z'/%3E%3C/svg%3E")`,
+  backgroundRepeat: "no-repeat", backgroundPosition: "right 12px center", cursor: "pointer",
 };
 
-function Perfil({ dados, onChange, onNext }) {
-  const serieOpcoes = dados.tipoFormacao ? SERIES_POR_TIPO[dados.tipoFormacao] || [] : [];
+function Label({ children }) {
+  return <label style={{ fontSize: 12, fontWeight: 700, color: DARK, display: "block", marginBottom: 4 }}>{children}</label>;
+}
 
-  const textFields = [
-    { key: "nome", label: "Nome completo", placeholder: "Seu nome aqui...", type: "text", span: 2 },
-    { key: "idade", label: "Idade", placeholder: "Ex: 16", type: "number", span: 1 },
-    { key: "cidade", label: "Cidade/Estado", placeholder: "Ex: São Paulo/SP", type: "text", span: 1 },
-    { key: "email", label: "E-mail", placeholder: "seuemail@gmail.com", type: "email", span: 2 },
-    { key: "telefone", label: "WhatsApp/Telefone", placeholder: "(11) 9 9999-9999", type: "text", span: 1 },
-    { key: "escola", label: "Escola", placeholder: "Nome da sua escola", type: "text", span: 1 },
-    { key: "cursos", label: "Cursos que já fez (opcional)", placeholder: "Ex: Excel básico, inglês, informática...", type: "text", span: 2 },
-  ];
-
-  const canNext = dados.nome && dados.idade && dados.email;
+function Perfil({ dados, onChange, onNext, onBack }) {
+  const canNext = dados.nome && dados.email;
   return (
     <div>
-      <h2 style={{ fontSize: 22, fontWeight: 800, color: "#1F2937", marginBottom: 4 }}>Sobre você 👤</h2>
-      <p style={{ color: "#6B7280", fontSize: 14, marginBottom: 20 }}>Essas informações vão para o seu currículo. Pode deixar campos opcionais em branco!</p>
+      <h2 style={{ fontSize: 20, fontWeight: 800, color: DARK, marginBottom: 4 }}>Seus dados 👤</h2>
+      <p style={{ color: GRAY, fontSize: 13, marginBottom: 20 }}>Essas informações vão para o seu currículo.</p>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 20 }}>
-        {textFields.map((f) => (
-          <div key={f.key} style={{ gridColumn: `span ${f.span}` }}>
-            <label style={{ fontSize: 12, fontWeight: 700, color: "#374151", display: "block", marginBottom: 4 }}>{f.label}</label>
-            <input
-              type={f.type}
-              placeholder={f.placeholder}
-              value={dados[f.key] || ""}
-              onChange={(e) => onChange(f.key, e.target.value)}
-              style={{ width: "100%", padding: "10px 14px", borderRadius: 10, border: "1.5px solid #E5E7EB", fontSize: 14, outline: "none", boxSizing: "border-box", fontFamily: "inherit" }}
-              onFocus={(e) => (e.target.style.borderColor = COLORS.purple)}
-              onBlur={(e) => (e.target.style.borderColor = "#E5E7EB")}
-            />
-          </div>
-        ))}
-
-        <div style={{ gridColumn: "span 1" }}>
-          <label style={{ fontSize: 12, fontWeight: 700, color: "#374151", display: "block", marginBottom: 4 }}>Tipo de formação</label>
-          <select
-            value={dados.tipoFormacao || ""}
-            onChange={(e) => { onChange("tipoFormacao", e.target.value); onChange("serie", ""); }}
-            style={{ ...selectStyle, borderColor: dados.tipoFormacao ? COLORS.purple : "#E5E7EB", color: dados.tipoFormacao ? "#1F2937" : "#9CA3AF" }}
-          >
+        <div style={{ gridColumn: "span 2" }}>
+          <Label>Nome completo *</Label>
+          <input style={inputStyle} placeholder="Seu nome completo" value={dados.nome || ""} onChange={e => onChange("nome", e.target.value)} />
+        </div>
+        <div>
+          <Label>Idade</Label>
+          <input style={inputStyle} type="number" placeholder="Ex: 16" value={dados.idade || ""} onChange={e => onChange("idade", e.target.value)} />
+        </div>
+        <div>
+          <Label>Cidade/Estado</Label>
+          <input style={inputStyle} placeholder="Ex: São Paulo/SP" value={dados.cidade || ""} onChange={e => onChange("cidade", e.target.value)} />
+        </div>
+        <div style={{ gridColumn: "span 2" }}>
+          <Label>E-mail *</Label>
+          <input style={inputStyle} type="email" placeholder="seuemail@gmail.com" value={dados.email || ""} onChange={e => onChange("email", e.target.value)} />
+        </div>
+        <div>
+          <Label>WhatsApp/Telefone</Label>
+          <input style={inputStyle} placeholder="(11) 9 9999-9999" value={dados.telefone || ""} onChange={e => onChange("telefone", e.target.value)} />
+        </div>
+        <div style={{ gridColumn: "span 2" }}>
+          <Label>Escola</Label>
+          <input style={inputStyle} placeholder="Nome da sua escola" value={dados.escola || ""} onChange={e => onChange("escola", e.target.value)} />
+        </div>
+        <div>
+          <Label>Tipo de formação</Label>
+          <select style={selectStyle} value={dados.tipoFormacao || ""} onChange={e => { onChange("tipoFormacao", e.target.value); onChange("serie", ""); }}>
             <option value="" disabled>Selecione...</option>
-            {TIPOS_FORMACAO.map((t) => <option key={t} value={t}>{t}</option>)}
+            {TIPOS_FORMACAO.map(t => <option key={t} value={t}>{t}</option>)}
           </select>
         </div>
-
-        <div style={{ gridColumn: "span 1" }}>
-          <label style={{ fontSize: 12, fontWeight: 700, color: "#374151", display: "block", marginBottom: 4 }}>Ano/Série</label>
-          <select
-            value={dados.serie || ""}
-            onChange={(e) => onChange("serie", e.target.value)}
-            disabled={!dados.tipoFormacao}
-            style={{ ...selectStyle, borderColor: dados.serie ? COLORS.purple : "#E5E7EB", color: dados.serie ? "#1F2937" : "#9CA3AF", opacity: dados.tipoFormacao ? 1 : 0.5, cursor: dados.tipoFormacao ? "pointer" : "not-allowed" }}
-          >
+        <div>
+          <Label>Ano/Série</Label>
+          <select style={selectStyle} value={dados.serie || ""} onChange={e => onChange("serie", e.target.value)} disabled={!dados.tipoFormacao}>
             <option value="" disabled>{dados.tipoFormacao ? "Selecione..." : "Escolha o tipo primeiro"}</option>
-            {serieOpcoes.map((s) => <option key={s} value={s}>{s}</option>)}
+            {(SERIES[dados.tipoFormacao] || []).map(s => <option key={s} value={s}>{s}</option>)}
           </select>
         </div>
-      </div>
-      <button
-        onClick={onNext}
-        disabled={!canNext}
-        style={{ background: canNext ? `linear-gradient(135deg, ${COLORS.purple}, ${COLORS.pink})` : "#D1D5DB", color: "#fff", border: "none", borderRadius: 12, padding: "13px 24px", fontSize: 15, fontWeight: 700, cursor: canNext ? "pointer" : "not-allowed", width: "100%" }}
-      >
-        Próximo: Seus interesses →
-      </button>
-    </div>
-  );
-}
-
-function Interesses({ selecionados, onToggle, onNext, onBack }) {
-  return (
-    <div>
-      <h2 style={{ fontSize: 22, fontWeight: 800, color: "#1F2937", marginBottom: 4 }}>O que te agita? 🔥</h2>
-      <p style={{ color: "#6B7280", fontSize: 14, marginBottom: 20 }}>Selecione as áreas que mais combinam com você. Pode ser mais de uma!</p>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 20 }}>
-        {INTERESSE_AREAS.map((area) => {
-          const sel = selecionados.includes(area.id);
-          return (
-            <div
-              key={area.id}
-              onClick={() => onToggle(area.id)}
-              style={{
-                border: `2px solid ${sel ? COLORS.purple : "#E5E7EB"}`,
-                borderRadius: 14,
-                padding: "14px 12px",
-                cursor: "pointer",
-                background: sel ? COLORS.purpleLight : "#fff",
-                transition: "all 0.2s",
-                userSelect: "none",
-              }}
-            >
-              <div style={{ fontSize: 28, marginBottom: 4 }}>{area.emoji}</div>
-              <div style={{ fontSize: 13, fontWeight: 700, color: sel ? COLORS.purple : "#1F2937", marginBottom: 2 }}>{area.label}</div>
-              <div style={{ fontSize: 11, color: "#6B7280", lineHeight: 1.4 }}>{area.desc}</div>
-              {sel && <div style={{ fontSize: 11, color: COLORS.purple, fontWeight: 700, marginTop: 4 }}>✓ Selecionado</div>}
-            </div>
-          );
-        })}
+        <div style={{ gridColumn: "span 2" }}>
+          <Label>Cursos que já fez (opcional)</Label>
+          <input style={inputStyle} placeholder="Ex: Excel básico, inglês, informática..." value={dados.cursos || ""} onChange={e => onChange("cursos", e.target.value)} />
+        </div>
       </div>
       <div style={{ display: "flex", gap: 10 }}>
-        <button onClick={onBack} style={{ flex: 1, padding: "13px", borderRadius: 12, border: "2px solid #E5E7EB", background: "#fff", fontSize: 14, fontWeight: 600, cursor: "pointer", color: "#6B7280" }}>← Voltar</button>
-        <button
-          onClick={onNext}
-          disabled={selecionados.length === 0}
-          style={{ flex: 2, background: selecionados.length ? `linear-gradient(135deg, ${COLORS.purple}, ${COLORS.pink})` : "#D1D5DB", color: "#fff", border: "none", borderRadius: 12, padding: "13px", fontSize: 15, fontWeight: 700, cursor: selecionados.length ? "pointer" : "not-allowed" }}
-        >
-          Próximo: Minhas habilidades →
+        <Btn outline onClick={onBack} small>← Voltar</Btn>
+        <button onClick={onNext} disabled={!canNext} style={{ flex: 1, background: canNext ? P : "#CBD5E1", color: WHITE, border: "none", borderRadius: 10, padding: "13px", fontSize: 15, fontWeight: 700, cursor: canNext ? "pointer" : "not-allowed", fontFamily: "inherit" }}>
+          Próximo: Quiz de perfil →
         </button>
       </div>
     </div>
   );
 }
 
-function Competencias({ selecionadas, onToggle, experiencias, onExpChange, onNext, onBack }) {
-  const [expanded, setExpanded] = useState(null);
+// ── QUIZ ────────────────────────────────────────────────
+function Quiz({ onFinalizar, onBack }) {
+  const [atual, setAtual] = useState(0);
+  const [respostas, setRespostas] = useState([]);
+  const [selecionada, setSelecionada] = useState(null);
+
+  const pergunta = QUIZ[atual];
+  const progresso = Math.round((atual / QUIZ.length) * 100);
+
+  const avancar = () => {
+    if (selecionada === null) return;
+    const novas = [...respostas, { questao: pergunta.id, comps: selecionada }];
+    if (atual + 1 < QUIZ.length) {
+      setRespostas(novas);
+      setAtual(atual + 1);
+      setSelecionada(null);
+    } else {
+      // Contar competências
+      const contagem = {};
+      novas.forEach(r => r.comps.forEach(c => { contagem[c] = (contagem[c] || 0) + 1; }));
+      const ordenadas = Object.entries(contagem).sort((a, b) => b[1] - a[1]).map(([id]) => id);
+      onFinalizar(ordenadas.slice(0, 5), novas);
+    }
+  };
+
   return (
     <div>
-      <h2 style={{ fontSize: 22, fontWeight: 800, color: "#1F2937", marginBottom: 4 }}>Suas habilidades secretas 🧠</h2>
-      <p style={{ color: "#6B7280", fontSize: 14, marginBottom: 16 }}>
-        Selecione as que você tem — mesmo sem emprego formal! Depois conta como desenvolveu.
-      </p>
+      <h2 style={{ fontSize: 20, fontWeight: 800, color: DARK, marginBottom: 4 }}>Quiz de perfil 🧩</h2>
+      <p style={{ color: GRAY, fontSize: 13, marginBottom: 16 }}>Responda com sinceridade — não tem certo ou errado!</p>
+
+      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
+        <div style={{ flex: 1, height: 6, background: BORDER, borderRadius: 99 }}>
+          <div style={{ height: "100%", width: `${progresso}%`, background: P, borderRadius: 99, transition: "width 0.4s" }} />
+        </div>
+        <span style={{ fontSize: 12, color: GRAY, fontWeight: 600 }}>{atual + 1}/{QUIZ.length}</span>
+      </div>
+
+      <div style={{ background: PL, borderRadius: 14, padding: "18px 16px", marginBottom: 16 }}>
+        <p style={{ fontSize: 15, fontWeight: 700, color: DARK, margin: 0, lineHeight: 1.5 }}>{pergunta.pergunta}</p>
+      </div>
+
       <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 20 }}>
-        {COMPETENCIAS.map((comp) => {
-          const sel = selecionadas.includes(comp.id);
-
+        {pergunta.opcoes.map((op, i) => {
+          const sel = selecionada === op.comps;
           return (
-            <div key={comp.id} style={{ border: `2px solid ${sel ? COLORS.purple : "#E5E7EB"}`, borderRadius: 14, overflow: "hidden", transition: "border-color 0.2s" }}>
-              <div
-                style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 16px", cursor: "pointer", background: sel ? COLORS.purpleLight : "#fff" }}
-                onClick={() => { onToggle(comp.id); setExpanded(sel ? null : comp.id); }}
-              >
-                <span style={{ fontSize: 24 }}>{comp.emoji}</span>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: 700, fontSize: 14, color: sel ? COLORS.purple : "#1F2937" }}>{comp.label}</div>
-                  <div style={{ fontSize: 12, color: "#6B7280" }}>{comp.desc}</div>
-                </div>
-                <div style={{ fontSize: 18, color: sel ? COLORS.purple : "#D1D5DB" }}>{sel ? "✅" : "○"}</div>
+            <div key={i} onClick={() => setSelecionada(op.comps)} style={{
+              border: `2px solid ${sel ? P : BORDER}`,
+              borderRadius: 12, padding: "13px 16px", cursor: "pointer",
+              background: sel ? PL : WHITE, transition: "all 0.15s",
+              display: "flex", alignItems: "center", gap: 12,
+            }}>
+              <div style={{ width: 20, height: 20, borderRadius: "50%", border: `2px solid ${sel ? P : BORDER}`, background: sel ? P : WHITE, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                {sel && <div style={{ width: 8, height: 8, borderRadius: "50%", background: WHITE }} />}
               </div>
-              {sel && (
-                <div style={{ padding: "10px 16px", background: "#FAFAFA", borderTop: "1px solid #F3F4F6" }}>
-                  <p style={{ fontSize: 12, color: COLORS.purple, fontWeight: 700, marginBottom: 6 }}>💡 Exemplos pra entrevista:</p>
-                  <ul style={{ margin: "0 0 10px", paddingLeft: 16 }}>
-                    {comp.exemplos.map((e, i) => <li key={i} style={{ fontSize: 12, color: "#374151", marginBottom: 2 }}>{e}</li>)}
-                  </ul>
-                  <label style={{ fontSize: 12, fontWeight: 700, color: "#374151", display: "block", marginBottom: 4 }}>
-                    Como você demonstrou isso na sua vida? (vai pro currículo!)
-                  </label>
-                  <textarea
-                    placeholder="Ex: Organizei as vendas de salgados para ajudar minha mãe no final de semana..."
-                    value={experiencias[comp.id] || ""}
-                    onChange={(e) => onExpChange(comp.id, e.target.value)}
-                    rows={2}
-                    style={{ width: "100%", padding: "8px 12px", borderRadius: 8, border: "1.5px solid #E5E7EB", fontSize: 12, resize: "vertical", fontFamily: "inherit", boxSizing: "border-box" }}
-                  />
-                </div>
-              )}
+              <span style={{ fontSize: 14, color: DARK, lineHeight: 1.4 }}>{op.texto}</span>
             </div>
           );
         })}
       </div>
+
       <div style={{ display: "flex", gap: 10 }}>
-        <button onClick={onBack} style={{ flex: 1, padding: "13px", borderRadius: 12, border: "2px solid #E5E7EB", background: "#fff", fontSize: 14, fontWeight: 600, cursor: "pointer", color: "#6B7280" }}>← Voltar</button>
-        <button
-          onClick={onNext}
-          disabled={selecionadas.length === 0}
-          style={{ flex: 2, background: selecionadas.length ? `linear-gradient(135deg, ${COLORS.purple}, ${COLORS.pink})` : "#D1D5DB", color: "#fff", border: "none", borderRadius: 12, padding: "13px", fontSize: 15, fontWeight: 700, cursor: selecionadas.length ? "pointer" : "not-allowed" }}
-        >
-          Gerar meu currículo com IA ✨
+        {atual > 0 && <Btn outline onClick={() => { setAtual(atual - 1); setSelecionada(null); }} small>← Voltar</Btn>}
+        <button onClick={avancar} disabled={selecionada === null} style={{ flex: 1, background: selecionada ? P : "#CBD5E1", color: WHITE, border: "none", borderRadius: 10, padding: "13px", fontSize: 15, fontWeight: 700, cursor: selecionada ? "pointer" : "not-allowed", fontFamily: "inherit" }}>
+          {atual + 1 === QUIZ.length ? "Ver meu perfil e currículo! 🚀" : "Próxima →"}
         </button>
       </div>
     </div>
   );
 }
 
-function ChatAssistente({ dados, interesses, competencias, experiencias }) {
+// ── CHAT ────────────────────────────────────────────────
+function Chat({ dados, comps }) {
   const [msgs, setMsgs] = useState([
-    { role: "assistant", content: `Oi ${dados.nome ? dados.nome.split(" ")[0] : ""}! 👋 Sou seu assistente de carreira. Pode me perguntar sobre entrevistas, profissões, cursos, ou qualquer dúvida sobre o mercado de trabalho!` },
+    { role: "assistant", content: `Oi${dados.nome ? " " + dados.nome.split(" ")[0] : ""}! 👋 Sou seu assistente de carreira. Pode me perguntar sobre entrevistas, profissões, cursos ou qualquer dúvida sobre o mercado de trabalho!` }
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const endRef = useRef(null);
-
-  useEffect(() => { endRef.current?.scrollIntoView({ behavior: "smooth" }); }, [msgs]);
+  useEffect(() => endRef.current?.scrollIntoView({ behavior: "smooth" }), [msgs]);
 
   const send = async () => {
     if (!input.trim() || loading) return;
@@ -411,360 +396,274 @@ function ChatAssistente({ dados, interesses, competencias, experiencias }) {
     setMsgs(newMsgs);
     setInput("");
     setLoading(true);
-
-    const system = `Você é um assistente de carreira para adolescentes brasileiros buscando o primeiro emprego. 
-Perfil do usuário: Nome: ${dados.nome}, Idade: ${dados.idade}, Cidade: ${dados.cidade}.
-Interesses: ${interesses.join(", ")}.
-Competências identificadas: ${competencias.join(", ")}.
-Responda de forma descontraída, usando linguagem jovem mas profissional. Use emojis. Seja motivador e prático.
-Máximo de 3 parágrafos curtos. Foque no contexto brasileiro.`;
-
-    const history = newMsgs.slice(1).map((m) => ({ role: m.role, content: m.content }));
+    const system = `Você é um assistente de carreira para adolescentes brasileiros. Perfil: ${dados.nome}, ${dados.idade || ""} anos, competências: ${comps.map(id => COMP_INFO[id]?.label).join(", ")}. Responda de forma jovem, motivadora e prática. Máximo 3 parágrafos curtos. Use emojis moderadamente.`;
+    const history = newMsgs.slice(1).map(m => ({ role: m.role, content: m.content }));
     try {
-      const data = await callClaude(history, system);
-      const reply = data.content?.find((b) => b.type === "text")?.text || "Opa, tive um problema técnico! Tenta de novo? 😅";
-      setMsgs((prev) => [...prev, { role: "assistant", content: reply }]);
+      const text = await callIA(history, system);
+      setMsgs(prev => [...prev, { role: "assistant", content: text }]);
     } catch {
-      setMsgs((prev) => [...prev, { role: "assistant", content: "Ops! Problema de conexão. Tenta de novo! 😅" }]);
+      setMsgs(prev => [...prev, { role: "assistant", content: "Ops! Problema de conexão. Tenta de novo 😅" }]);
     }
     setLoading(false);
   };
 
   return (
-    <div style={{ border: "2px solid #E5E7EB", borderRadius: 16, overflow: "hidden", marginBottom: 20 }}>
-      <div style={{ background: `linear-gradient(135deg, ${COLORS.purple}, ${COLORS.pink})`, padding: "12px 16px", display: "flex", alignItems: "center", gap: 10 }}>
-        <span style={{ fontSize: 24 }}>🤖</span>
-        <div>
-          <div style={{ color: "#fff", fontWeight: 700, fontSize: 14 }}>Assistente de Carreira</div>
-          <div style={{ color: "rgba(255,255,255,0.8)", fontSize: 11 }}>Tire suas dúvidas!</div>
-        </div>
-        <div style={{ marginLeft: "auto", width: 8, height: 8, borderRadius: "50%", background: "#34D399" }} />
+    <div style={{ border: `1.5px solid ${BORDER}`, borderRadius: 14, overflow: "hidden" }}>
+      <div style={{ background: P, padding: "12px 16px", display: "flex", alignItems: "center", gap: 10 }}>
+        <span style={{ fontSize: 20 }}>🤖</span>
+        <div style={{ color: WHITE, fontWeight: 700, fontSize: 14 }}>Assistente de Carreira</div>
+        <div style={{ marginLeft: "auto", width: 8, height: 8, borderRadius: "50%", background: "#4ADE80" }} />
       </div>
-      <div style={{ height: 220, overflowY: "auto", padding: "12px 16px", background: "#FAFAFA", display: "flex", flexDirection: "column", gap: 10 }}>
+      <div style={{ height: 200, overflowY: "auto", padding: "12px", background: LGRAY, display: "flex", flexDirection: "column", gap: 8 }}>
         {msgs.map((m, i) => (
           <div key={i} style={{ display: "flex", justifyContent: m.role === "user" ? "flex-end" : "flex-start" }}>
-            <div style={{
-              maxWidth: "80%",
-              background: m.role === "user" ? `linear-gradient(135deg, ${COLORS.purple}, ${COLORS.pink})` : "#fff",
-              color: m.role === "user" ? "#fff" : "#1F2937",
-              border: m.role === "assistant" ? "1px solid #E5E7EB" : "none",
-              borderRadius: m.role === "user" ? "16px 16px 4px 16px" : "16px 16px 16px 4px",
-              padding: "10px 14px",
-              fontSize: 13,
-              lineHeight: 1.5,
-              whiteSpace: "pre-wrap",
-            }}>
+            <div style={{ maxWidth: "80%", background: m.role === "user" ? P : WHITE, color: m.role === "user" ? WHITE : DARK, border: m.role === "assistant" ? `1px solid ${BORDER}` : "none", borderRadius: m.role === "user" ? "14px 14px 4px 14px" : "14px 14px 14px 4px", padding: "9px 13px", fontSize: 13, lineHeight: 1.5, whiteSpace: "pre-wrap" }}>
               {m.content}
             </div>
           </div>
         ))}
-        {loading && (
-          <div style={{ display: "flex", justifyContent: "flex-start" }}>
-            <div style={{ background: "#fff", border: "1px solid #E5E7EB", borderRadius: "16px 16px 16px 4px", padding: "10px 14px" }}>
-              <span style={{ display: "inline-flex", gap: 4 }}>
-                {[0, 1, 2].map((i) => (
-                  <span key={i} style={{ width: 6, height: 6, borderRadius: "50%", background: COLORS.purple, animation: `pulse 1.2s ${i * 0.2}s infinite` }} />
-                ))}
-              </span>
-            </div>
-          </div>
-        )}
+        {loading && <div style={{ display: "flex" }}><div style={{ background: WHITE, border: `1px solid ${BORDER}`, borderRadius: "14px 14px 14px 4px", padding: "9px 13px", fontSize: 13, color: GRAY }}>Digitando...</div></div>}
         <div ref={endRef} />
       </div>
-      <div style={{ display: "flex", gap: 8, padding: "10px 12px", borderTop: "1px solid #E5E7EB", background: "#fff" }}>
-        <input
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && send()}
-          placeholder="Pergunte algo sobre carreira, vagas, entrevistas..."
-          style={{ flex: 1, padding: "10px 14px", borderRadius: 10, border: "1.5px solid #E5E7EB", fontSize: 13, outline: "none", fontFamily: "inherit" }}
-        />
-        <button
-          onClick={send}
-          disabled={!input.trim() || loading}
-          style={{ background: COLORS.purple, color: "#fff", border: "none", borderRadius: 10, padding: "10px 16px", cursor: "pointer", fontSize: 16 }}
-        >
-          ➤
-        </button>
+      <div style={{ display: "flex", gap: 8, padding: "10px", borderTop: `1px solid ${BORDER}`, background: WHITE }}>
+        <input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === "Enter" && send()} placeholder="Pergunte sobre carreira, entrevistas, vagas..." style={{ ...inputStyle, flex: 1 }} />
+        <button onClick={send} disabled={!input.trim() || loading} style={{ background: P, color: WHITE, border: "none", borderRadius: 8, padding: "0 14px", cursor: "pointer", fontSize: 16 }}>→</button>
       </div>
-      <style>{`@keyframes pulse { 0%,100%{opacity:0.3;transform:scale(0.8)} 50%{opacity:1;transform:scale(1.2)} }`}</style>
     </div>
   );
 }
 
-function GerarCurriculo({ dados, interesses, competencias, experiencias }) {
+// ── CURRÍCULO ───────────────────────────────────────────
+function Curriculo({ dados, comps, respostasQuiz }) {
+  const [tab, setTab] = useState("curriculo");
   const [curriculo, setCurriculo] = useState("");
   const [dicas, setDicas] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [tab, setTab] = useState("curriculo");
-  const [gerado, setGerado] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  const gerar = async () => {
-    setLoading(true);
-    setGerado(false);
-    const compsLabels = COMPETENCIAS.filter((c) => competencias.includes(c.id)).map((c) => c.label);
-    const expsTexto = COMPETENCIAS.filter((c) => competencias.includes(c.id) && experiencias[c.id])
-      .map((c) => `${c.label}: ${experiencias[c.id]}`).join("\n");
-    const interLabels = INTERESSE_AREAS.filter((a) => interesses.includes(a.id)).map((a) => a.label);
+  const compLabels = comps.map(id => COMP_INFO[id]?.label).filter(Boolean);
+  const compDescs = comps.map(id => COMP_INFO[id]).filter(Boolean);
 
-    const temCursos = !!(dados.cursos && dados.cursos.trim());
-    const temExperiencias = !!(expsTexto && expsTexto.trim());
-    const temEscola = !!(dados.escola && dados.escola.trim());
-    const temTelefone = !!(dados.telefone && dados.telefone.trim());
-    const temCidade = !!(dados.cidade && dados.cidade.trim());
+  useEffect(() => {
+    const gerar = async () => {
+      const base = gerarCurriculoTexto(dados, comps, respostasQuiz);
 
-    const prompt = `Crie um currículo profissional para jovem em busca do primeiro emprego.
+      const promptCV = `Melhore e complete este currículo para um jovem buscando o primeiro emprego. Use APENAS os dados fornecidos, nunca invente informações. Escreva um Objetivo Profissional e um Resumo de Perfil motivadores baseados nas competências identificadas. Mantenha formato profissional e neutro.
 
-REGRA ABSOLUTA: Use APENAS as informações abaixo. NUNCA invente, complete ou suponha dados que não estão aqui. Se um campo estiver ausente, simplesmente não inclua aquela informação nem aquela seção.
-
-DADOS FORNECIDOS:
+DADOS REAIS:
 Nome: ${dados.nome}
 ${dados.idade ? `Idade: ${dados.idade}` : ""}
-${temCidade ? `Cidade: ${dados.cidade}` : ""}
+${dados.cidade ? `Cidade: ${dados.cidade}` : ""}
 Email: ${dados.email}
-${temTelefone ? `Telefone: ${dados.telefone}` : ""}
-${temEscola ? `Escola: ${dados.escola}` : ""}
-${dados.tipoFormacao ? `Tipo de formação: ${dados.tipoFormacao}` : ""}
-${dados.serie ? `Série/Ano: ${dados.serie}` : ""}
-${temCursos ? `Cursos realizados: ${dados.cursos}` : ""}
+${dados.telefone ? `Telefone: ${dados.telefone}` : ""}
+${dados.escola ? `Escola: ${dados.escola}` : ""}
+${dados.tipoFormacao ? `Formação: ${dados.tipoFormacao}${dados.serie ? ` — ${dados.serie}` : ""}` : ""}
+${dados.cursos ? `Cursos: ${dados.cursos}` : ""}
+Competências identificadas pelo quiz: ${compLabels.join(", ")}
 
-Áreas de interesse: ${interLabels.length ? interLabels.join(", ") : "Não informado"}
-Competências selecionadas: ${compsLabels.length ? compsLabels.join(", ") : "Não informado"}
-${temExperiencias ? `Experiências reais relatadas pela pessoa:\n${expsTexto}` : ""}
+ESTRUTURA OBRIGATÓRIA (use exatamente estes títulos em maiúsculas):
+DADOS PESSOAIS
+OBJETIVO PROFISSIONAL
+RESUMO DE PERFIL
+FORMAÇÃO ACADÊMICA
+${dados.cursos ? "CURSOS E CERTIFICAÇÕES" : ""}
+COMPETÊNCIAS
+INFORMAÇÕES COMPLEMENTARES
 
-SEÇÕES OBRIGATÓRIAS (sempre incluir):
-1. DADOS PESSOAIS — apenas os dados fornecidos acima
-2. OBJETIVO PROFISSIONAL — 1 parágrafo baseado nos interesses e competências reais informados
-3. RESUMO DE PERFIL — 2-3 frases destacando o potencial com base apenas no que foi informado
-4. FORMAÇÃO ACADÊMICA — apenas se escola ou tipo de formação foram informados
-5. HABILIDADES E COMPETÊNCIAS — apenas as competências que a pessoa selecionou, com uma frase curta sobre cada
+Regra absoluta: não invente cursos, experiências, datas ou qualquer dado não fornecido acima.`;
 
-SEÇÕES CONDICIONAIS (incluir SOMENTE se houver dado real):
-- CURSOS E CERTIFICAÇÕES — incluir SOMENTE se "Cursos realizados" estiver preenchido acima
-- PROJETOS E ATIVIDADES RELEVANTES — incluir SOMENTE se houver "Experiências reais relatadas" acima; transforme em linguagem profissional sem adicionar nada além do que foi dito
+      const promptDicas = `Este jovem fez um quiz e suas principais competências são: ${compLabels.join(", ")}.
 
-Formate cada seção com o título em MAIÚSCULAS seguido de uma linha em branco e o conteúdo.
-NÃO adicione seções extras, NÃO invente cursos, datas, empresas, projetos ou qualquer informação não fornecida.`;
+Crie 4 dicas PERSONALIZADAS de como contar a história dele na entrevista, usando exemplos concretos do dia a dia de um adolescente brasileiro para demonstrar cada competência. 
 
-    const promptDicas = `Com base no perfil desta pessoa (${dados.nome}, ${dados.idade} anos, interesses em ${interLabels.join(", ")}, competências: ${compsLabels.join(", ")}), 
-crie 5 dicas personalizadas para ela se sair bem em entrevistas de emprego, específicas para o perfil dela.
-Também sugira 3 vagas ideais (Jovem Aprendiz, Estágio) que combinam com o perfil.
-Linguagem jovem, motivadora, com emojis.`;
+Para cada dica:
+1. Diga qual competência ela demonstra
+2. Sugira uma situação real que o jovem pode ter vivido (escola, família, comunidade, hobbies)
+3. Mostre como transformar isso em resposta profissional na entrevista
 
-    try {
-      const [r1, r2] = await Promise.all([
-        callClaude([{ role: "user", content: prompt }], "Você é especialista em RH e cria currículos para jovens em busca do primeiro emprego no Brasil. Responda apenas com o currículo formatado, sem comentários adicionais."),
-        callClaude([{ role: "user", content: promptDicas }], "Você é um coach de carreira jovem e motivador para adolescentes brasileiros. Use linguagem acessível e emojis."),
-      ]);
-      setCurriculo(r1.content?.find((b) => b.type === "text")?.text || "Erro ao gerar.");
-      setDicas(r2.content?.find((b) => b.type === "text")?.text || "Erro ao gerar.");
-      setGerado(true);
-    } catch {
-      setCurriculo("Erro de conexão. Tente novamente.");
-    }
-    setLoading(false);
+Use linguagem jovem e motivadora. Seja específico e prático.`;
+
+      try {
+        const [cv, d] = await Promise.all([
+          callIA([{ role: "user", content: promptCV }], "Você é especialista em RH e cria currículos profissionais para jovens no Brasil. Responda apenas com o currículo formatado, sem comentários. Use linguagem profissional e neutra."),
+          callIA([{ role: "user", content: promptDicas }], "Você é coach de carreira para adolescentes brasileiros. Seja prático, motivador e use linguagem jovem."),
+        ]);
+        setCurriculo(cv);
+        setDicas(d);
+      } catch {
+        setCurriculo(base);
+        setDicas("Não foi possível gerar dicas personalizadas. Tente novamente.");
+      }
+      setLoading(false);
+    };
+    gerar();
+  }, []);
+
+  const baixarWord = () => {
+    const html = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word'><head><meta charset='utf-8'><style>
+body{font-family:Calibri,Arial,sans-serif;font-size:11pt;margin:2.5cm;color:#1E293B}
+h1{font-size:18pt;color:#1E293B;margin:0 0 4pt;border-bottom:2pt solid #2563EB;padding-bottom:4pt}
+.contato{font-size:10pt;color:#64748B;margin:0 0 14pt}
+.secao{font-size:9pt;font-weight:bold;color:#2563EB;text-transform:uppercase;letter-spacing:1pt;border-bottom:1pt solid #E2E8F0;padding-bottom:3pt;margin:14pt 0 6pt}
+p{margin:2pt 0;line-height:1.5}
+</style></head><body>
+${curriculo.split("\n").map(line => {
+  if (!line.trim()) return "<br/>";
+  const isHeader = /^[A-ZÁÀÂÃÉÊÍÓÔÕÚÇ][A-ZÁÀÂÃÉÊÍÓÔÕÚÇ\s]{3,}$/.test(line.trim());
+  if (isHeader) return `<div class="secao">${line.trim()}</div>`;
+  return `<p>${line}</p>`;
+}).join("")}
+</body></html>`;
+    const blob = new Blob(["\ufeff", html], { type: "application/msword" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `curriculo_${(dados.nome || "meu").split(" ")[0].toLowerCase()}.doc`;
+    a.click();
   };
+
+  const tabs = [
+    { key: "curriculo", label: "📄 Currículo" },
+    { key: "competencias", label: "🧠 Perfil" },
+    { key: "dicas", label: "💡 Entrevista" },
+    { key: "guia", label: "📚 Cursos" },
+    { key: "chat", label: "🤖 Chat" },
+  ];
 
   return (
     <div>
-      {!gerado && (
-        <div style={{ textAlign: "center", padding: "20px 0" }}>
-          <div style={{ fontSize: 56, marginBottom: 12 }}>✨</div>
-          <h2 style={{ fontSize: 22, fontWeight: 800, color: "#1F2937", marginBottom: 8 }}>Hora de montar seu currículo!</h2>
-          <p style={{ color: "#6B7280", fontSize: 14, marginBottom: 24 }}>
-            Nossa IA vai usar tudo que você contou pra criar um currículo incrível e dicas personalizadas pra você!
-          </p>
-          <button
-            onClick={gerar}
-            disabled={loading}
-            style={{ background: `linear-gradient(135deg, ${COLORS.purple}, ${COLORS.pink})`, color: "#fff", border: "none", borderRadius: 14, padding: "16px 36px", fontSize: 16, fontWeight: 800, cursor: "pointer", boxShadow: "0 4px 20px rgba(124,58,237,0.4)", width: "100%" }}
-          >
-            {loading ? "🔄 Gerando com IA..." : "🚀 Gerar meu currículo!"}
+      <h2 style={{ fontSize: 20, fontWeight: 800, color: DARK, marginBottom: 4 }}>Seu perfil completo 🌟</h2>
+      <p style={{ color: GRAY, fontSize: 13, marginBottom: 16 }}>
+        Olá, <strong>{dados.nome?.split(" ")[0]}</strong>! Tudo pronto. Explore as abas abaixo!
+      </p>
+
+      <div style={{ display: "flex", gap: 6, marginBottom: 16, overflowX: "auto", paddingBottom: 4 }}>
+        {tabs.map(t => (
+          <button key={t.key} onClick={() => setTab(t.key)} style={{ whiteSpace: "nowrap", padding: "8px 12px", borderRadius: 8, border: `1.5px solid ${tab === t.key ? P : BORDER}`, background: tab === t.key ? PL : WHITE, color: tab === t.key ? P : GRAY, fontSize: 12, fontWeight: tab === t.key ? 700 : 500, cursor: "pointer", fontFamily: "inherit" }}>
+            {t.label}
           </button>
-          {loading && (
-            <p style={{ color: COLORS.purple, fontSize: 13, marginTop: 12 }}>Isso pode levar alguns segundos... ⏳</p>
-          )}
+        ))}
+      </div>
+
+      {loading && (
+        <div style={{ textAlign: "center", padding: "40px 0", color: GRAY }}>
+          <div style={{ fontSize: 36, marginBottom: 12 }}>⏳</div>
+          <p style={{ fontSize: 14, fontWeight: 600 }}>Gerando seu currículo com IA...</p>
+          <p style={{ fontSize: 12 }}>Isso pode levar alguns segundos</p>
         </div>
       )}
 
-      {gerado && (
-        <>
-          <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
-            {[
-              { key: "curriculo", label: "📄 Currículo" },
-              { key: "dicas", label: "💡 Dicas IA" },
-              { key: "entrevista", label: "🎤 Entrevista" },
-              { key: "cursos", label: "📚 Cursos" },
-              { key: "chat", label: "🤖 Chat" },
-            ].map((t) => (
-              <button
-                key={t.key}
-                onClick={() => setTab(t.key)}
-                style={{ flex: 1, padding: "9px 4px", borderRadius: 10, border: `2px solid ${tab === t.key ? COLORS.purple : "#E5E7EB"}`, background: tab === t.key ? COLORS.purpleLight : "#fff", color: tab === t.key ? COLORS.purple : "#6B7280", fontSize: 11, fontWeight: tab === t.key ? 700 : 500, cursor: "pointer" }}
-              >
-                {t.label}
-              </button>
-            ))}
+      {!loading && tab === "curriculo" && (
+        <div>
+          {/* Preview visual do CV */}
+          <div style={{ background: WHITE, border: `1px solid ${BORDER}`, borderRadius: 12, padding: "24px", marginBottom: 12, maxHeight: 420, overflowY: "auto", boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+            {curriculo.split("\n").map((line, i) => {
+              if (!line.trim()) return <div key={i} style={{ height: 8 }} />;
+              const isNome = i === 0;
+              const isSecao = /^[A-ZÁÀÂÃÉÊÍÓÔÕÚÇ][A-ZÁÀÂÃÉÊÍÓÔÕÚÇ\s]{3,}$/.test(line.trim()) && !isNome;
+              if (isNome) return <h2 key={i} style={{ fontSize: 20, fontWeight: 800, color: DARK, margin: "0 0 2px", borderBottom: `2px solid ${P}`, paddingBottom: 6 }}>{line}</h2>;
+              if (isSecao) return <div key={i} style={{ fontSize: 10, fontWeight: 800, color: P, textTransform: "uppercase", letterSpacing: 1, borderBottom: `1px solid ${BORDER}`, paddingBottom: 3, marginTop: 14, marginBottom: 6 }}>{line}</div>;
+              return <p key={i} style={{ fontSize: 13, color: DARK, lineHeight: 1.7, margin: "2px 0" }}>{line}</p>;
+            })}
           </div>
+          <div style={{ display: "flex", gap: 8 }}>
+            <button onClick={baixarWord} style={{ flex: 2, background: P, color: WHITE, border: "none", borderRadius: 10, padding: "12px", fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>
+              ⬇️ Baixar como Word (.doc)
+            </button>
+            <button onClick={() => { navigator.clipboard?.writeText(curriculo); alert("Copiado! 📋"); }} style={{ flex: 1, background: WHITE, color: P, border: `2px solid ${P}`, borderRadius: 10, padding: "12px", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>
+              📋 Copiar
+            </button>
+          </div>
+        </div>
+      )}
 
-          {tab === "curriculo" && (
-            <div>
-              <div style={{ background: "#fff", border: "1px solid #E5E7EB", borderRadius: 12, padding: "20px 22px", marginBottom: 12, maxHeight: 420, overflowY: "auto" }}>
-                {curriculo.split("\n").map((line, i) => {
-                  const isHeader = /^[A-ZÁÀÂÃÉÊÍÓÔÕÚÇ\s]{4,}:/.test(line.trim()) || /^[A-ZÁÀÂÃÉÊÍÓÔÕÚÇ\s]{4,}$/.test(line.trim());
-                  const isEmpty = line.trim() === "";
-                  if (isEmpty) return <div key={i} style={{ height: 8 }} />;
-                  if (isHeader) return (
-                    <div key={i} style={{ fontSize: 11, fontWeight: 800, color: COLORS.purple, letterSpacing: 1, textTransform: "uppercase", borderBottom: `2px solid ${COLORS.purpleLight}`, paddingBottom: 4, marginTop: 14, marginBottom: 6 }}>
-                      {line.trim().replace(/:$/, "")}
-                    </div>
-                  );
-                  return <p key={i} style={{ fontSize: 13, color: "#374151", lineHeight: 1.7, margin: "2px 0" }}>{line}</p>;
-                })}
+      {!loading && tab === "competencias" && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          <p style={{ fontSize: 13, color: GRAY, margin: "0 0 8px" }}>Suas <strong>{compDescs.length} principais competências</strong> identificadas pelo quiz:</p>
+          {compDescs.map((comp, i) => (
+            <div key={i} style={{ background: WHITE, border: `1.5px solid ${BORDER}`, borderRadius: 12, padding: "14px 16px", borderLeft: `4px solid ${P}` }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
+                <span style={{ fontSize: 22 }}>{comp.emoji}</span>
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: 14, color: DARK }}>{comp.label}</div>
+                  <div style={{ fontSize: 12, color: P, fontWeight: 600 }}>Competência #{i + 1}</div>
+                </div>
               </div>
-              <div style={{ display: "flex", gap: 8 }}>
-                <button
-                  onClick={() => {
-                    const html = `
-                      <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
-                      <head><meta charset='utf-8'><title>Currículo</title>
-                      <style>
-                        body { font-family: Calibri, Arial, sans-serif; font-size: 11pt; margin: 2cm; color: #1a1a1a; }
-                        h1 { font-size: 18pt; color: #7C3AED; margin-bottom: 2pt; }
-                        .sub { font-size: 10pt; color: #6B7280; margin-bottom: 16pt; }
-                        .secao { font-size: 10pt; font-weight: bold; color: #7C3AED; text-transform: uppercase; letter-spacing: 1pt; border-bottom: 1pt solid #EDE9FE; padding-bottom: 3pt; margin-top: 14pt; margin-bottom: 6pt; }
-                        p { font-size: 11pt; margin: 2pt 0; line-height: 1.5; }
-                        hr { border: none; border-top: 1pt solid #E5E7EB; }
-                      </style></head><body>
-                      ${curriculo.split("\n").map((line) => {
-                        const isHeader = /^[A-ZÁÀÂÃÉÊÍÓÔÕÚÇ\s]{4,}:/.test(line.trim()) || /^[A-ZÁÀÂÃÉÊÍÓÔÕÚÇ\s]{4,}$/.test(line.trim());
-                        if (line.trim() === "") return "<br/>";
-                        if (isHeader) return `<div class="secao">${line.trim().replace(/:$/, "")}</div>`;
-                        return `<p>${line}</p>`;
-                      }).join("")}
-                      </body></html>`;
-                    const blob = new Blob(["\ufeff", html], { type: "application/msword" });
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement("a");
-                    a.href = url;
-                    a.download = `curriculo_${(dados.nome || "meu").split(" ")[0].toLowerCase()}.doc`;
-                    a.click();
-                    URL.revokeObjectURL(url);
-                  }}
-                  style={{ flex: 2, background: `linear-gradient(135deg, ${COLORS.purple}, ${COLORS.pink})`, color: "#fff", border: "none", borderRadius: 10, padding: "12px", fontSize: 14, fontWeight: 700, cursor: "pointer" }}
-                >
-                  ⬇️ Baixar como Word (.doc)
-                </button>
-                <button
-                  onClick={() => {
-                    navigator.clipboard?.writeText(curriculo) || (() => {
-                      const el = document.createElement("textarea");
-                      el.value = curriculo;
-                      document.body.appendChild(el);
-                      el.select();
-                      document.execCommand("copy");
-                      document.body.removeChild(el);
-                    })();
-                    alert("Copiado! 📋 Cole onde quiser.");
-                  }}
-                  style={{ flex: 1, background: "#fff", color: COLORS.purple, border: `2px solid ${COLORS.purple}`, borderRadius: 10, padding: "12px", fontSize: 13, fontWeight: 700, cursor: "pointer" }}
-                >
-                  📋 Copiar
-                </button>
-              </div>
+              <p style={{ fontSize: 13, color: GRAY, margin: 0, lineHeight: 1.5 }}>{comp.desc}</p>
             </div>
-          )}
+          ))}
+        </div>
+      )}
 
-          {tab === "dicas" && (
-            <div style={{ background: "#F9FAFB", border: "1px solid #E5E7EB", borderRadius: 12, padding: "16px", whiteSpace: "pre-wrap", fontSize: 13, lineHeight: 1.7, color: "#1F2937", maxHeight: 420, overflowY: "auto" }}>
-              {dicas}
-            </div>
-          )}
-
-          {tab === "entrevista" && (
-            <div style={{ display: "flex", flexDirection: "column", gap: 10, maxHeight: 420, overflowY: "auto" }}>
+      {!loading && tab === "dicas" && (
+        <div>
+          <div style={{ background: PL, border: `1px solid ${P}20`, borderRadius: 12, padding: "12px 14px", marginBottom: 16 }}>
+            <p style={{ fontSize: 13, color: P, fontWeight: 700, margin: "0 0 4px" }}>💡 Como contar sua história</p>
+            <p style={{ fontSize: 12, color: GRAY, margin: 0 }}>Dicas personalizadas baseadas no seu perfil para se destacar na entrevista</p>
+          </div>
+          <div style={{ background: WHITE, border: `1px solid ${BORDER}`, borderRadius: 12, padding: "16px", maxHeight: 380, overflowY: "auto", whiteSpace: "pre-wrap", fontSize: 13, lineHeight: 1.7, color: DARK }}>
+            {dicas}
+          </div>
+          <div style={{ marginTop: 16 }}>
+            <p style={{ fontSize: 13, fontWeight: 700, color: DARK, marginBottom: 10 }}>🎤 Dicas gerais de entrevista:</p>
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               {DICAS_ENTREVISTA.map((d, i) => (
-                <div key={i} style={{ display: "flex", gap: 12, background: "#fff", border: "1px solid #E5E7EB", borderRadius: 12, padding: "12px 14px", borderLeft: `4px solid ${d.cor}` }}>
-                  <span style={{ fontSize: 24, flexShrink: 0 }}>{d.icon}</span>
+                <div key={i} style={{ display: "flex", gap: 12, background: LGRAY, borderRadius: 10, padding: "10px 12px" }}>
+                  <span style={{ fontSize: 20, flexShrink: 0 }}>{d.icon}</span>
                   <div>
-                    <div style={{ fontWeight: 700, fontSize: 13, color: "#1F2937", marginBottom: 2 }}>{d.titulo}</div>
-                    <div style={{ fontSize: 12, color: "#6B7280", lineHeight: 1.5 }}>{d.dica}</div>
+                    <div style={{ fontWeight: 700, fontSize: 13, color: DARK, marginBottom: 2 }}>{d.titulo}</div>
+                    <div style={{ fontSize: 12, color: GRAY, lineHeight: 1.5 }}>{d.dica}</div>
                   </div>
                 </div>
               ))}
             </div>
-          )}
+          </div>
+        </div>
+      )}
 
-          {tab === "cursos" && (
-            <div style={{ display: "flex", flexDirection: "column", gap: 10, maxHeight: 420, overflowY: "auto" }}>
-              <p style={{ fontSize: 13, color: "#6B7280", margin: "0 0 8px" }}>🎓 Plataformas com cursos gratuitos e certificados reconhecidos no mercado:</p>
-              {CURSOS_GRATUITOS.map((c, i) => (
-                <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, background: "#fff", border: "1px solid #E5E7EB", borderRadius: 12, padding: "12px 14px" }}>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontWeight: 700, fontSize: 13, color: COLORS.purple, marginBottom: 2 }}>{c.nome}</div>
-                    <div style={{ fontSize: 12, color: "#6B7280" }}>{c.areas}</div>
-                  </div>
-                  <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6 }}>
-                    <Badge text={c.badge} color={COLORS.purple} bg={COLORS.purpleLight} />
-                    <a href={c.url} target="_blank" rel="noreferrer" style={{ fontSize: 11, color: COLORS.blue, textDecoration: "none", fontWeight: 600 }}>Acessar →</a>
-                  </div>
-                </div>
-              ))}
+      {!loading && tab === "guia" && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 10, maxHeight: 420, overflowY: "auto" }}>
+          <p style={{ fontSize: 13, color: GRAY, margin: "0 0 8px" }}>🎓 Cursos gratuitos com certificado reconhecido:</p>
+          {CURSOS.map((c, i) => (
+            <div key={i} style={{ background: WHITE, border: `1px solid ${BORDER}`, borderRadius: 12, padding: "12px 14px", display: "flex", alignItems: "center", gap: 12 }}>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontWeight: 700, fontSize: 13, color: DARK, marginBottom: 2 }}>{c.nome}</div>
+                <div style={{ fontSize: 12, color: GRAY }}>{c.areas}</div>
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6 }}>
+                <span style={{ background: "#DCFCE7", color: GREEN, fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 99 }}>{c.badge}</span>
+                <a href={c.url} target="_blank" rel="noreferrer" style={{ fontSize: 11, color: P, fontWeight: 600, textDecoration: "none" }}>Acessar →</a>
+              </div>
             </div>
-          )}
+          ))}
+        </div>
+      )}
 
-          {tab === "chat" && (
-            <ChatAssistente dados={dados} interesses={interesses} competencias={competencias} experiencias={experiencias} />
-          )}
+      {!loading && tab === "chat" && <Chat dados={dados} comps={comps} />}
 
-          <button
-            onClick={gerar}
-            style={{ width: "100%", marginTop: 12, padding: "10px", borderRadius: 10, border: `2px solid ${COLORS.purple}`, background: "#fff", color: COLORS.purple, fontSize: 13, fontWeight: 700, cursor: "pointer" }}
-          >
-            🔄 Regenerar currículo
-          </button>
-        </>
+      {!loading && (
+        <button onClick={() => window.location.reload()} style={{ width: "100%", marginTop: 14, padding: "10px", borderRadius: 10, border: `1.5px solid ${BORDER}`, background: WHITE, color: GRAY, fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+          🔄 Recomeçar do início
+        </button>
       )}
     </div>
   );
 }
 
-// ──────────────────────────────────────────────
-// MAIN APP
-// ──────────────────────────────────────────────
-
+// ── APP ─────────────────────────────────────────────────
 export default function App() {
   const [step, setStep] = useState("inicio");
   const [dados, setDados] = useState({});
-  const [interesses, setInteresses] = useState([]);
-  const [competencias, setCompetencias] = useState([]);
-  const [experiencias, setExperiencias] = useState({});
+  const [comps, setComps] = useState([]);
+  const [respostasQuiz, setRespostasQuiz] = useState([]);
 
-  const updateDados = (key, val) => setDados((p) => ({ ...p, [key]: val }));
-  const toggleInteresse = (id) => setInteresses((p) => p.includes(id) ? p.filter((x) => x !== id) : [...p, id]);
-  const toggleComp = (id) => setCompetencias((p) => p.includes(id) ? p.filter((x) => x !== id) : [...p, id]);
-  const updateExp = (id, val) => setExperiencias((p) => ({ ...p, [id]: val }));
-
-  const go = (s) => setStep(s);
+  const upd = (k, v) => setDados(p => ({ ...p, [k]: v }));
 
   return (
-    <div style={{ maxWidth: 600, margin: "0 auto", padding: "16px 16px 40px", fontFamily: "'Inter', system-ui, sans-serif" }}>
-      <h2 className="sr-only">PrimeiroEmprego — Plataforma de orientação de carreira para adolescentes</h2>
-
+    <div style={{ maxWidth: 580, margin: "0 auto", padding: "16px 16px 48px", fontFamily: "'Inter', system-ui, sans-serif", background: WHITE, minHeight: "100vh" }}>
       {step !== "inicio" && <ProgressBar step={step} />}
-      {step === "inicio" && <Inicio onNext={() => go("perfil")} />}
-      {step === "perfil" && <Perfil dados={dados} onChange={updateDados} onNext={() => go("interesses")} />}
-      {step === "interesses" && <Interesses selecionados={interesses} onToggle={toggleInteresse} onNext={() => go("competencias")} onBack={() => go("perfil")} />}
-      {step === "competencias" && <Competencias selecionadas={competencias} onToggle={toggleComp} experiencias={experiencias} onExpChange={updateExp} onNext={() => go("curriculo")} onBack={() => go("interesses")} />}
-      {step === "curriculo" && (
-        <>
-          <h2 style={{ fontSize: 22, fontWeight: 800, color: "#1F2937", marginBottom: 4 }}>Seu perfil completo 🌟</h2>
-          <p style={{ color: "#6B7280", fontSize: 13, marginBottom: 16 }}>
-            Olá, <strong>{dados.nome?.split(" ")[0]}</strong>! Geramos tudo pra você. Explore as abas abaixo!
-          </p>
-          <GerarCurriculo dados={dados} interesses={interesses} competencias={competencias} experiencias={experiencias} />
-        </>
-      )}
+      {step === "inicio" && <Inicio onNext={() => setStep("perfil")} />}
+      {step === "perfil" && <Perfil dados={dados} onChange={upd} onNext={() => setStep("quiz")} onBack={() => setStep("inicio")} />}
+      {step === "quiz" && <Quiz onFinalizar={(c, r) => { setComps(c); setRespostasQuiz(r); setStep("curriculo"); }} onBack={() => setStep("perfil")} />}
+      {step === "curriculo" && <Curriculo dados={dados} comps={comps} respostasQuiz={respostasQuiz} />}
     </div>
   );
 }
