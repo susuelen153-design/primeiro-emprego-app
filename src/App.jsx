@@ -637,13 +637,7 @@ Escreve de forma humana e direta. Sem frases genéricas de IA, sem travessões d
       const promptDicas = `${dados.nome || "Este jovem"} fez um quiz e as principais skills são: ${compLabels.join(", ")}.
 
 Cria 4 dicas de como contar a história dessa pessoa numa entrevista. Para cada skill, sugere uma situação concreta que um jovem brasileiro pode ter vivido de verdade, focando em:
-- Projetos escolares relevantes (feiras, apresentações, trabalhos que deram resultado)
-- Criação de conteúdo digital (edição, redes sociais, design, programação)
-- Geração de renda própria (venda de produtos, serviços, freelas)
-- Voluntariado e ação comunitária (igreja, ONG, projeto social, campanha)
-- Ensinar ou ajudar alguém (reforço escolar, tutoriais, suporte técnico)
-- Aprendizado autônomo (cursos online, tutoriais, projetos pessoais)
-- Liderança informal (organizar grupo, mediar conflito, coordenar algo)
+Projetos escolares (feiras, apresentações, trabalhos em grupo), esportes e atividades coletivas, voluntariado e ação comunitária, criação de conteúdo, geração de renda própria, aprendizado autônomo, liderança informal em qualquer contexto.
 
 Não dê exemplos específicos nem nichos como "feira de ciências" ou "venda de bolo". Em vez disso, sugere perguntas que a pessoa pode se fazer pra lembrar de algo que viveu: "você já organizou alguma coisa?", "já ajudou alguém a resolver um problema?", "já aprendeu algo por conta própria?".
 
