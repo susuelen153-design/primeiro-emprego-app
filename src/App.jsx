@@ -1,110 +1,124 @@
 import { useState, useRef, useEffect } from "react";
 
-const P = "#2563EB"; // azul profissional
-const PL = "#EFF6FF";
-const DARK = "#1E293B";
-const GRAY = "#64748B";
-const LGRAY = "#F1F5F9";
-const WHITE = "#FFFFFF";
-const GREEN = "#16A34A";
-const BORDER = "#E2E8F0";
+// ── TEMA DARK / GAME ────────────────────────────────────
+const C = {
+  bg:      "#0F0F1A",
+  card:    "#1A1A2E",
+  card2:   "#16213E",
+  border:  "#2D2D5E",
+  purple:  "#9B5CF6",
+  purpleD: "#7C3AED",
+  cyan:    "#06B6D4",
+  green:   "#22C55E",
+  yellow:  "#EAB308",
+  pink:    "#EC4899",
+  red:     "#EF4444",
+  white:   "#F1F5F9",
+  gray:    "#94A3B8",
+  grayD:   "#475569",
+  xp:      "#F59E0B",
+};
 
 const STEPS = ["inicio", "perfil", "quiz", "curriculo"];
 
-// ── QUIZ DE PERFIL ──────────────────────────────────────
+const XP_POR_STEP = { perfil: 150, quiz: 300, curriculo: 500 };
+
+// ── QUIZ ────────────────────────────────────────────────
 const QUIZ = [
   {
     id: "q1",
-    pergunta: "Quando tem um trabalho em grupo na escola, você geralmente:",
+    pergunta: "Rolou um trabalho em grupo na escola. O que você faz?",
     opcoes: [
-      { texto: "Organiza as tarefas e cuida dos prazos", comps: ["organizacao", "lideranca"] },
-      { texto: "Anima o grupo e mantém todo mundo motivado", comps: ["comunicacao", "equipe"] },
-      { texto: "Pesquisa e traz as melhores ideias", comps: ["criatividade", "aprendizado"] },
-      { texto: "Garante que tudo seja feito direitinho", comps: ["responsabilidade", "organizacao"] },
+      { texto: "Já organizo tudo, divido as tarefas e garanto que vai sair no prazo", comps: ["organizacao", "lideranca"] },
+      { texto: "Animo o grupo, jogo energia e deixo todo mundo motivado", comps: ["comunicacao", "equipe"] },
+      { texto: "Pesquiso, trago as ideias mais criativas e diferentes", comps: ["criatividade", "aprendizado"] },
+      { texto: "Fico de olho nos detalhes pra não sair nada errado", comps: ["responsabilidade", "organizacao"] },
     ],
   },
   {
     id: "q2",
-    pergunta: "Quando surge um problema que ninguém sabe resolver, você:",
+    pergunta: "Surgiu um problema que ninguém sabe resolver. E aí?",
     opcoes: [
-      { texto: "Toma a frente e propõe uma solução", comps: ["proatividade", "lideranca"] },
-      { texto: "Conversa com todos para entender o problema", comps: ["comunicacao", "equipe"] },
-      { texto: "Pesquisa sozinho até encontrar a resposta", comps: ["aprendizado", "responsabilidade"] },
-      { texto: "Pensa em algo criativo e diferente", comps: ["criatividade", "proatividade"] },
+      { texto: "Tomo a frente e já proponho uma solução", comps: ["proatividade", "lideranca"] },
+      { texto: "Converso com todo mundo pra entender melhor antes de agir", comps: ["comunicacao", "equipe"] },
+      { texto: "Vou pesquisar sozinho até achar a resposta", comps: ["aprendizado", "responsabilidade"] },
+      { texto: "Penso em algo criativo que ninguém pensou ainda", comps: ["criatividade", "proatividade"] },
     ],
   },
   {
     id: "q3",
-    pergunta: "No seu dia a dia, o que as pessoas mais pedem sua ajuda?",
+    pergunta: "As pessoas te pedem ajuda pra quê com mais frequência?",
     opcoes: [
-      { texto: "Para explicar ou ensinar algo", comps: ["comunicacao", "aprendizado"] },
-      { texto: "Para organizar eventos ou atividades", comps: ["organizacao", "lideranca"] },
-      { texto: "Para criar algo diferente ou bonito", comps: ["criatividade", "proatividade"] },
-      { texto: "Para resolver problemas práticos", comps: ["responsabilidade", "equipe"] },
+      { texto: "Explicar ou ensinar algo que eu sei bem", comps: ["comunicacao", "aprendizado"] },
+      { texto: "Organizar evento, aniversário, rolê com a galera", comps: ["organizacao", "lideranca"] },
+      { texto: "Criar algo diferente, bonito ou original", comps: ["criatividade", "proatividade"] },
+      { texto: "Resolver um problema prático que tá travado", comps: ["responsabilidade", "equipe"] },
     ],
   },
   {
     id: "q4",
-    pergunta: "Como você prefere aprender coisas novas?",
+    pergunta: "Como você aprende melhor as paradas novas?",
     opcoes: [
-      { texto: "Assistindo tutoriais e praticando sozinho", comps: ["aprendizado", "proatividade"] },
-      { texto: "Com alguém me ensinando e tirando dúvidas", comps: ["comunicacao", "equipe"] },
-      { texto: "Tentando e errando até acertar", comps: ["responsabilidade", "criatividade"] },
-      { texto: "Lendo e me organizando com anotações", comps: ["organizacao", "aprendizado"] },
+      { texto: "Tutorial no YouTube e praticando sozinho até pegar o jeito", comps: ["aprendizado", "proatividade"] },
+      { texto: "Com alguém me ensinando e podendo tirar dúvida na hora", comps: ["comunicacao", "equipe"] },
+      { texto: "Tentando, errando e tentando de novo até funcionar", comps: ["responsabilidade", "criatividade"] },
+      { texto: "Lendo tudo, fazendo anotações e me organizando direito", comps: ["organizacao", "aprendizado"] },
     ],
   },
   {
     id: "q5",
-    pergunta: "Quando você tem um prazo para entregar algo importante:",
+    pergunta: "Você tem um prazo pra entregar algo importante. Como age?",
     opcoes: [
-      { texto: "Já começo antes do tempo e entrego cedo", comps: ["proatividade", "organizacao"] },
-      { texto: "Me organizo bem e entrego no prazo certo", comps: ["responsabilidade", "organizacao"] },
-      { texto: "Peço ajuda se precisar e termino junto", comps: ["equipe", "comunicacao"] },
-      { texto: "Me concentro e dou meu melhor até o fim", comps: ["responsabilidade", "aprendizado"] },
+      { texto: "Começo antes do tempo e entrego adiantado", comps: ["proatividade", "organizacao"] },
+      { texto: "Me organizo bem e entrego certinho no prazo", comps: ["responsabilidade", "organizacao"] },
+      { texto: "Peço ajuda se travar e termino com a galera", comps: ["equipe", "comunicacao"] },
+      { texto: "Me foco e dou o máximo até o final", comps: ["responsabilidade", "aprendizado"] },
     ],
   },
   {
     id: "q6",
-    pergunta: "O que você mais gosta de fazer no tempo livre?",
+    pergunta: "No tempo livre, o que você mais curte fazer?",
     opcoes: [
-      { texto: "Criar conteúdo, desenhar ou inventar coisas", comps: ["criatividade", "proatividade"] },
-      { texto: "Ajudar amigos ou família com algo", comps: ["equipe", "responsabilidade"] },
-      { texto: "Aprender algo novo por conta própria", comps: ["aprendizado", "proatividade"] },
-      { texto: "Organizar, planejar ou montar algo", comps: ["organizacao", "lideranca"] },
+      { texto: "Criar conteúdo, desenhar, inventar parada nova", comps: ["criatividade", "proatividade"] },
+      { texto: "Ajudar alguém da família ou um amigo com algo", comps: ["equipe", "responsabilidade"] },
+      { texto: "Aprender uma skill nova por conta própria", comps: ["aprendizado", "proatividade"] },
+      { texto: "Organizar, planejar ou montar algo do zero", comps: ["organizacao", "lideranca"] },
     ],
   },
 ];
 
 const COMP_INFO = {
-  comunicacao:     { label: "Comunicação",            emoji: "🗣️", desc: "Você sabe se expressar com clareza, seja falando ou escrevendo. Isso é muito valorizado em atendimento, vendas e trabalho em equipe." },
-  equipe:          { label: "Trabalho em Equipe",     emoji: "🤝", desc: "Você colabora bem com outras pessoas e sabe que juntos chegamos mais longe. Empresas adoram quem constrói boas relações." },
-  organizacao:     { label: "Organização",            emoji: "📋", desc: "Você planeja, prioriza e cumpre prazos. Essa competência é essencial em qualquer área profissional." },
-  proatividade:    { label: "Proatividade",           emoji: "🚀", desc: "Você age antes de ser pedido e vai além do esperado. Profissionais proativos se destacam rapidamente." },
-  criatividade:    { label: "Criatividade",           emoji: "💡", desc: "Você pensa fora da caixa e encontra soluções inovadoras. Muito valorizado em empresas modernas." },
-  responsabilidade:{ label: "Responsabilidade",       emoji: "✅", desc: "Você assume compromissos e os cumpre. Confiabilidade é a base de toda relação profissional." },
-  lideranca:       { label: "Liderança",              emoji: "👑", desc: "Você inspira e guia pessoas naturalmente. Mesmo sem cargo, líderes fazem a diferença em qualquer time." },
-  aprendizado:     { label: "Facilidade p/ Aprender", emoji: "🧠", desc: "Você absorve conhecimento rápido e se adapta. No mercado de hoje, quem aprende rápido sempre se destaca." },
+  comunicacao:      { label: "Comunicação",            emoji: "🗣️", cor: C.cyan,   desc: "Você sabe se expressar bem, tanto falando quanto escrevendo. Isso abre muita porta em atendimento, vendas e trabalho em equipe." },
+  equipe:           { label: "Trabalho em Equipe",     emoji: "🤝", cor: C.purple, desc: "Você funciona bem junto com outras pessoas e entende que em time o resultado é maior. Toda empresa valoriza isso." },
+  organizacao:      { label: "Organização",            emoji: "📋", cor: C.green,  desc: "Você planeja, prioriza e cumpre o que prometeu. Em qualquer área isso faz diferença desde o primeiro dia." },
+  proatividade:     { label: "Proatividade",           emoji: "🚀", cor: C.yellow, desc: "Você age sem precisar ser mandado e vai além do esperado. Quem tem isso se destaca rápido em qualquer lugar." },
+  criatividade:     { label: "Criatividade",           emoji: "💡", cor: C.pink,   desc: "Você pensa diferente e encontra saídas que outros não viram. Empresas modernas adoram quem traz ideias novas." },
+  responsabilidade: { label: "Responsabilidade",       emoji: "✅", cor: C.green,  desc: "Você assume o que prometeu e cumpre. Confiança é a base de qualquer relação profissional." },
+  lideranca:        { label: "Liderança",              emoji: "👑", cor: C.yellow, desc: "Você influencia pessoas de forma natural. Mesmo sem cargo, líderes fazem o time andar pra frente." },
+  aprendizado:      { label: "Aprende Rápido",         emoji: "🧠", cor: C.cyan,   desc: "Você absorve conhecimento novo com facilidade e se adapta. No mercado de hoje essa é uma das skills mais valorizadas." },
 };
 
+const TURNOS = ["Manhã", "Tarde", "Noite", "Manhã e Tarde", "Tarde e Noite", "Qualquer horário", "Fins de semana", "Período integral"];
+
 const CURSOS = [
-  { nome: "Escola Virtual Bradesco", url: "https://www.ev.org.br/cursos", areas: "Informática, Administração, IA, Inglês — +88 cursos gratuitos", badge: "Gratuito" },
-  { nome: "SENAI Play", url: "https://play.senai.br/cursos", areas: "Tecnologia, Indústria, Qualidade", badge: "Gratuito" },
-  { nome: "Google Skillshop", url: "https://skillshop.withgoogle.com", areas: "Marketing Digital, Analytics, IA — certificado Google", badge: "Gratuito" },
-  { nome: "Microsoft Learn", url: "https://learn.microsoft.com/pt-br/training/browse", areas: "Office, Power BI, Azure, IA", badge: "Gratuito" },
-  { nome: "IBM SkillsBuild", url: "https://skillsbuild.org/pt-BR", areas: "IA, Dados, Cibersegurança, Cloud", badge: "Gratuito" },
-  { nome: "Khan Academy", url: "https://pt.khanacademy.org", areas: "Matemática, Programação, Ciências", badge: "Gratuito" },
-  { nome: "SEBRAE Online", url: "https://www.sebrae.com.br/sites/PortalSebrae/cursosonline", areas: "Empreendedorismo, Vendas, Gestão", badge: "Gratuito" },
-  { nome: "Coursera (Google)", url: "https://www.coursera.org/google", areas: "TI, Dados, UX, Cibersegurança — bolsas disponíveis", badge: "Gratuito" },
+  { nome: "Escola Virtual Bradesco", url: "https://www.ev.org.br/cursos", areas: "Informática, Administração, IA, Inglês", badge: "TOP" },
+  { nome: "Google Skillshop", url: "https://skillshop.withgoogle.com", areas: "Marketing Digital, Analytics, IA", badge: "Google" },
+  { nome: "Microsoft Learn", url: "https://learn.microsoft.com/pt-br/training/browse", areas: "Office, Power BI, Azure", badge: "Microsoft" },
+  { nome: "IBM SkillsBuild", url: "https://skillsbuild.org/pt-BR", areas: "IA, Dados, Cibersegurança", badge: "IBM" },
+  { nome: "SENAI Play", url: "https://play.senai.br/cursos", areas: "Tecnologia, Indústria, Qualidade", badge: "SENAI" },
+  { nome: "Khan Academy", url: "https://pt.khanacademy.org", areas: "Matemática, Programação, Ciências", badge: "Free" },
+  { nome: "SEBRAE Online", url: "https://www.sebrae.com.br/sites/PortalSebrae/cursosonline", areas: "Empreendedorismo, Vendas, Gestão", badge: "Free" },
+  { nome: "Coursera (Google)", url: "https://www.coursera.org/google", areas: "TI, Dados, UX — bolsas disponíveis", badge: "Free" },
 ];
 
 const DICAS_ENTREVISTA = [
-  { icon: "✨", titulo: "Vista o que te faz sentir bem", dica: "Não existe roupa certa ou errada. O que importa é você se sentir confortável e confiante. Só evita boné e bermuda, que passam uma ideia de descuido." },
-  { icon: "⏰", titulo: "Chega antes do horário", dica: "Apareça uns 10 minutinhos antes. Pesquise o caminho com antecedência para não ter surpresa no dia." },
-  { icon: "🔍", titulo: "Pesquise a empresa antes", dica: "Dá uma olhada no site ou Instagram deles. Quando perguntarem por que você quer trabalhar lá, você vai ter o que responder de verdade." },
-  { icon: "💬", titulo: "Suas histórias reais valem ouro", dica: "Você não precisa ter trabalhado antes. Conta sobre algo que organizou, vendeu, ensinou ou ajudou. Isso é experiência de verdade." },
+  { icon: "✨", titulo: "Veste o que te faz sentir bem", dica: "Não tem roupa certa nem errada. O que importa é você se sentir confortável e confiante. Só evita boné e bermuda, que passam a ideia de descuido." },
+  { icon: "⏰", titulo: "Chega antes do horário", dica: "Uns 10 minutinhos antes já basta. Pesquisa o caminho com antecedência pra não ter surpresa." },
+  { icon: "🔍", titulo: "Pesquisa a empresa antes", dica: "Dá uma olhada no site ou Instagram deles. Quando perguntarem por que você quer trabalhar lá, você vai ter o que responder de verdade." },
+  { icon: "💬", titulo: "Suas histórias valem ouro", dica: "Não precisa ter trabalhado antes. Conta sobre algo que organizou, vendeu, ensinou ou ajudou. Isso é experiência de verdade." },
   { icon: "👀", titulo: "Olha nos olhos e relaxa", dica: "Nervoso é normal, todo mundo fica. Respira fundo, fala com calma e olha pra pessoa. Isso já passa muita confiança." },
-  { icon: "❓", titulo: "Pergunta sobre a vaga", dica: "No final, pergunta algo como: quais são as principais tarefas do dia a dia? Mostra que você está interessado de verdade." },
-  { icon: "🤐", titulo: "Sem falar mal de ninguém", dica: "Nem de escola, professores ou colegas. Não precisa fingir que tudo foi perfeito, mas guarda as críticas pra você." },
+  { icon: "❓", titulo: "Pergunta sobre a vaga", dica: "No final, pergunta algo tipo: quais são as principais tarefas do dia a dia? Mostra que você quer entender de verdade." },
+  { icon: "🤐", titulo: "Sem falar mal de ninguém", dica: "Nem de escola, professores ou colegas. Não precisa fingir que tudo foi perfeito, só guarda as críticas pra você." },
   { icon: "🙏", titulo: "Manda uma mensagem depois", dica: "Um recado no WhatsApp ou e-mail agradecendo a conversa. Quase ninguém faz isso e quem faz fica na memória." },
 ];
 
@@ -119,106 +133,111 @@ async function callIA(messages, systemPrompt) {
   return data?.text || "Erro ao gerar resposta.";
 }
 
-// ── GERAÇÃO DO CURRÍCULO (template local) ───────────────
-function gerarCurriculoTexto(dados, comps, respostasQuiz) {
-  const nome = dados.nome || "";
-  const contato = [dados.cidade, dados.telefone, dados.email].filter(Boolean).join("  |  ");
-  const formacao = dados.tipoFormacao && dados.serie
-    ? `${dados.tipoFormacao} — ${dados.serie}${dados.escola ? ` | ${dados.escola}` : ""}`
-    : dados.escola || "";
+// ── ESTILOS BASE ────────────────────────────────────────
+const cardStyle = {
+  background: C.card,
+  border: `1px solid ${C.border}`,
+  borderRadius: 16,
+  padding: "20px",
+};
 
-  const compsList = comps.map(id => COMP_INFO[id]?.label).filter(Boolean);
+const inputStyle = {
+  width: "100%",
+  padding: "11px 14px",
+  borderRadius: 10,
+  border: `1.5px solid ${C.border}`,
+  fontSize: 14,
+  outline: "none",
+  fontFamily: "inherit",
+  boxSizing: "border-box",
+  background: C.card2,
+  color: C.white,
+};
 
-  return `${nome}
-${contato}
-${"─".repeat(60)}
+const selectStyle = {
+  ...inputStyle,
+  appearance: "none",
+  backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2394A3B8' d='M6 8L1 3h10z'/%3E%3C/svg%3E")`,
+  backgroundRepeat: "no-repeat",
+  backgroundPosition: "right 12px center",
+  cursor: "pointer",
+};
 
-OBJETIVO PROFISSIONAL
-Busco minha primeira oportunidade profissional para aplicar minhas habilidades, aprender com profissionais experientes e contribuir com os resultados da equipe.
-
-${"─".repeat(60)}
-
-FORMAÇÃO ACADÊMICA
-${formacao || "A preencher"}
-${dados.cursos ? `\nCURSOS E CERTIFICAÇÕES\n${dados.cursos}` : ""}
-
-${"─".repeat(60)}
-
-COMPETÊNCIAS
-${compsList.map(c => `• ${c}`).join("\n")}
-
-${"─".repeat(60)}
-
-INFORMAÇÕES COMPLEMENTARES
-Disponibilidade: A combinar
-${dados.cidade ? `Localização: ${dados.cidade}` : ""}`;
+function Label({ children }) {
+  return <label style={{ fontSize: 12, fontWeight: 700, color: C.gray, display: "block", marginBottom: 5, textTransform: "uppercase", letterSpacing: 0.5 }}>{children}</label>;
 }
 
-// ── COMPONENTS ──────────────────────────────────────────
-
-function ProgressBar({ step }) {
-  const steps = [
-    { key: "inicio", label: "Início" },
-    { key: "perfil", label: "Perfil" },
-    { key: "quiz", label: "Quiz" },
-    { key: "curriculo", label: "Currículo" },
-  ];
-  const idx = steps.findIndex(s => s.key === step);
-  const pct = Math.round((idx / (steps.length - 1)) * 100);
-  return (
-    <div style={{ marginBottom: 24 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-        {steps.map((s, i) => (
-          <span key={s.key} style={{ fontSize: 11, fontWeight: i <= idx ? 700 : 400, color: i <= idx ? P : GRAY }}>{s.label}</span>
-        ))}
-      </div>
-      <div style={{ height: 4, background: BORDER, borderRadius: 99 }}>
-        <div style={{ height: "100%", width: `${pct}%`, background: P, borderRadius: 99, transition: "width 0.4s" }} />
-      </div>
-    </div>
-  );
-}
-
-function Btn({ children, onClick, disabled, outline, small }) {
+function GradBtn({ children, onClick, disabled, outline }) {
   return (
     <button onClick={onClick} disabled={disabled} style={{
-      background: outline ? WHITE : disabled ? "#CBD5E1" : P,
-      color: outline ? P : WHITE,
-      border: outline ? `2px solid ${P}` : "none",
-      borderRadius: 10,
-      padding: small ? "9px 16px" : "13px 24px",
-      fontSize: small ? 13 : 15,
+      background: disabled ? C.grayD : outline ? "transparent" : `linear-gradient(135deg, ${C.purple}, ${C.cyan})`,
+      color: C.white,
+      border: outline ? `2px solid ${C.purple}` : "none",
+      borderRadius: 12,
+      padding: "13px 20px",
+      fontSize: 15,
       fontWeight: 700,
       cursor: disabled ? "not-allowed" : "pointer",
       fontFamily: "inherit",
+      width: "100%",
+      opacity: disabled ? 0.5 : 1,
     }}>{children}</button>
+  );
+}
+
+// ── XP BAR ──────────────────────────────────────────────
+function XPBar({ xp }) {
+  const max = 950;
+  const pct = Math.min((xp / max) * 100, 100);
+  return (
+    <div style={{ marginBottom: 20 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+        <span style={{ fontSize: 12, fontWeight: 700, color: C.xp }}>⚡ {xp} XP</span>
+        <span style={{ fontSize: 11, color: C.gray }}>Nível {xp < 150 ? 1 : xp < 450 ? 2 : xp < 950 ? 3 : 4}</span>
+      </div>
+      <div style={{ height: 6, background: C.border, borderRadius: 99 }}>
+        <div style={{ height: "100%", width: `${pct}%`, background: `linear-gradient(90deg, ${C.purple}, ${C.cyan})`, borderRadius: 99, transition: "width 0.6s ease" }} />
+      </div>
+    </div>
   );
 }
 
 // ── TELA INÍCIO ─────────────────────────────────────────
 function Inicio({ onNext }) {
   return (
-    <div style={{ textAlign: "center", padding: "12px 0 24px" }}>
-      <div style={{ fontSize: 56, marginBottom: 8 }}>🚀</div>
-      <h1 style={{ fontSize: 26, fontWeight: 800, color: DARK, margin: "0 0 8px" }}>PrimeiroEmprego</h1>
-      <p style={{ fontSize: 15, color: GRAY, marginBottom: 28, lineHeight: 1.6 }}>
-        Descubra suas competências, monte seu currículo<br />e se prepare pra arrasar na entrevista!
+    <div style={{ textAlign: "center", padding: "20px 0 28px" }}>
+      <div style={{ fontSize: 64, marginBottom: 10 }}>🎮</div>
+      <h1 style={{ fontSize: 30, fontWeight: 900, margin: "0 0 6px", background: `linear-gradient(135deg, ${C.purple}, ${C.cyan})`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+        PrimeiroEmprego
+      </h1>
+      <p style={{ fontSize: 14, color: C.gray, marginBottom: 28, lineHeight: 1.7 }}>
+        Descobre suas skills, monta seu currículo<br />e chega na entrevista preparado 🚀
       </p>
+
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, marginBottom: 28 }}>
         {[
-          { emoji: "🧩", label: "Quiz de perfil" },
-          { emoji: "📄", label: "Currículo com IA" },
-          { emoji: "🎤", label: "Dicas de entrevista" },
+          { emoji: "🧩", label: "Quiz de perfil", cor: C.purple },
+          { emoji: "📄", label: "Currículo com IA", cor: C.cyan },
+          { emoji: "🎤", label: "Dicas de entrevista", cor: C.green },
         ].map((f, i) => (
-          <div key={i} style={{ background: PL, borderRadius: 12, padding: "14px 8px" }}>
-            <div style={{ fontSize: 26, marginBottom: 6 }}>{f.emoji}</div>
-            <div style={{ fontSize: 12, color: P, fontWeight: 700 }}>{f.label}</div>
+          <div key={i} style={{ background: C.card, border: `1px solid ${f.cor}40`, borderRadius: 14, padding: "16px 8px" }}>
+            <div style={{ fontSize: 28, marginBottom: 6 }}>{f.emoji}</div>
+            <div style={{ fontSize: 11, color: f.cor, fontWeight: 700 }}>{f.label}</div>
           </div>
         ))}
       </div>
-      <button onClick={onNext} style={{ background: P, color: WHITE, border: "none", borderRadius: 12, padding: "14px", fontSize: 16, fontWeight: 700, cursor: "pointer", width: "100%" }}>
-        Começar agora →
-      </button>
+
+      <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "14px 16px", marginBottom: 20, textAlign: "left" }}>
+        <div style={{ fontSize: 12, color: C.gray, marginBottom: 8, fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.5 }}>📍 Sua missão</div>
+        {["Complete seu perfil", "Faça o quiz e descubra suas skills", "Gere seu currículo e se prepare"].map((m, i) => (
+          <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: i < 2 ? 8 : 0 }}>
+            <div style={{ width: 22, height: 22, borderRadius: "50%", background: `${C.purple}30`, border: `1px solid ${C.purple}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 800, color: C.purple, flexShrink: 0 }}>{i + 1}</div>
+            <span style={{ fontSize: 13, color: C.white }}>{m}</span>
+          </div>
+        ))}
+      </div>
+
+      <GradBtn onClick={onNext}>Começar a jornada ⚡</GradBtn>
     </div>
   );
 }
@@ -231,30 +250,20 @@ const SERIES = {
   "Ensino Médio Técnico": ["1º ano", "2º ano", "3º ano", "Concluído"],
   "EJA": ["1ª etapa", "2ª etapa", "3ª etapa", "Concluído"],
   "Curso Técnico": ["1º semestre", "2º semestre", "3º semestre", "4º semestre", "Concluído"],
-  "Graduação": ["1º semestre", "2º semestre", "3º semestre", "4º semestre", "5º semestre", "6º semestre", "7º semestre", "8º semestre", "Concluído"],
+  "Graduação": ["1º", "2º", "3º", "4º", "5º", "6º", "7º", "8º semestre", "Concluído"],
 };
-
-const inputStyle = {
-  width: "100%", padding: "10px 12px", borderRadius: 8,
-  border: `1.5px solid ${BORDER}`, fontSize: 14, outline: "none",
-  fontFamily: "inherit", boxSizing: "border-box", background: WHITE,
-};
-const selectStyle = {
-  ...inputStyle, appearance: "none",
-  backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748B' d='M6 8L1 3h10z'/%3E%3C/svg%3E")`,
-  backgroundRepeat: "no-repeat", backgroundPosition: "right 12px center", cursor: "pointer",
-};
-
-function Label({ children }) {
-  return <label style={{ fontSize: 12, fontWeight: 700, color: DARK, display: "block", marginBottom: 4 }}>{children}</label>;
-}
 
 function Perfil({ dados, onChange, onNext, onBack }) {
   const canNext = dados.nome && dados.email;
   return (
     <div>
-      <h2 style={{ fontSize: 20, fontWeight: 800, color: DARK, marginBottom: 4 }}>Seus dados 👤</h2>
-      <p style={{ color: GRAY, fontSize: 13, marginBottom: 20 }}>Essas informações vão para o seu currículo.</p>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}>
+        <span style={{ fontSize: 24 }}>👤</span>
+        <h2 style={{ fontSize: 20, fontWeight: 800, color: C.white, margin: 0 }}>Fase 1: Seu perfil</h2>
+        <span style={{ marginLeft: "auto", fontSize: 11, fontWeight: 700, color: C.xp, background: `${C.xp}20`, padding: "3px 10px", borderRadius: 99 }}>+150 XP</span>
+      </div>
+      <p style={{ color: C.gray, fontSize: 13, marginBottom: 20 }}>Essas info vão pro seu currículo. Os * são obrigatórios.</p>
+
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 20 }}>
         <div style={{ gridColumn: "span 2" }}>
           <Label>Nome completo *</Label>
@@ -273,7 +282,7 @@ function Perfil({ dados, onChange, onNext, onBack }) {
           <input style={inputStyle} type="email" placeholder="seuemail@gmail.com" value={dados.email || ""} onChange={e => onChange("email", e.target.value)} />
         </div>
         <div>
-          <Label>WhatsApp/Telefone</Label>
+          <Label>WhatsApp</Label>
           <input style={inputStyle} placeholder="(11) 9 9999-9999" value={dados.telefone || ""} onChange={e => onChange("telefone", e.target.value)} />
         </div>
         <div style={{ gridColumn: "span 2" }}>
@@ -290,8 +299,15 @@ function Perfil({ dados, onChange, onNext, onBack }) {
         <div>
           <Label>Ano/Série</Label>
           <select style={selectStyle} value={dados.serie || ""} onChange={e => onChange("serie", e.target.value)} disabled={!dados.tipoFormacao}>
-            <option value="" disabled>{dados.tipoFormacao ? "Selecione..." : "Escolha o tipo primeiro"}</option>
+            <option value="" disabled>{dados.tipoFormacao ? "Selecione..." : "Escolha o tipo"}</option>
             {(SERIES[dados.tipoFormacao] || []).map(s => <option key={s} value={s}>{s}</option>)}
+          </select>
+        </div>
+        <div style={{ gridColumn: "span 2" }}>
+          <Label>Disponibilidade para trabalhar</Label>
+          <select style={selectStyle} value={dados.turno || ""} onChange={e => onChange("turno", e.target.value)}>
+            <option value="" disabled>Selecione o turno...</option>
+            {TURNOS.map(t => <option key={t} value={t}>{t}</option>)}
           </select>
         </div>
         <div style={{ gridColumn: "span 2" }}>
@@ -299,11 +315,12 @@ function Perfil({ dados, onChange, onNext, onBack }) {
           <input style={inputStyle} placeholder="Ex: Excel básico, inglês, informática..." value={dados.cursos || ""} onChange={e => onChange("cursos", e.target.value)} />
         </div>
       </div>
+
       <div style={{ display: "flex", gap: 10 }}>
-        <Btn outline onClick={onBack} small>← Voltar</Btn>
-        <button onClick={onNext} disabled={!canNext} style={{ flex: 1, background: canNext ? P : "#CBD5E1", color: WHITE, border: "none", borderRadius: 10, padding: "13px", fontSize: 15, fontWeight: 700, cursor: canNext ? "pointer" : "not-allowed", fontFamily: "inherit" }}>
-          Próximo: Quiz de perfil →
-        </button>
+        <button onClick={onBack} style={{ padding: "13px 18px", borderRadius: 12, border: `1.5px solid ${C.border}`, background: "transparent", color: C.gray, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>← Voltar</button>
+        <div style={{ flex: 1 }}>
+          <GradBtn onClick={onNext} disabled={!canNext}>Próxima fase → 🧩</GradBtn>
+        </div>
       </div>
     </div>
   );
@@ -314,66 +331,89 @@ function Quiz({ onFinalizar, onBack }) {
   const [atual, setAtual] = useState(0);
   const [respostas, setRespostas] = useState([]);
   const [selecionada, setSelecionada] = useState(null);
+  const [animating, setAnimating] = useState(false);
 
   const pergunta = QUIZ[atual];
-  const progresso = Math.round((atual / QUIZ.length) * 100);
+  const progresso = Math.round(((atual) / QUIZ.length) * 100);
 
   const avancar = () => {
-    if (selecionada === null) return;
-    const novas = [...respostas, { questao: pergunta.id, comps: selecionada }];
-    if (atual + 1 < QUIZ.length) {
-      setRespostas(novas);
-      setAtual(atual + 1);
-      setSelecionada(null);
-    } else {
-      // Contar competências
-      const contagem = {};
-      novas.forEach(r => r.comps.forEach(c => { contagem[c] = (contagem[c] || 0) + 1; }));
-      const ordenadas = Object.entries(contagem).sort((a, b) => b[1] - a[1]).map(([id]) => id);
-      onFinalizar(ordenadas.slice(0, 5), novas);
-    }
+    if (!selecionada || animating) return;
+    setAnimating(true);
+    setTimeout(() => {
+      const novas = [...respostas, { questao: pergunta.id, comps: selecionada }];
+      if (atual + 1 < QUIZ.length) {
+        setRespostas(novas);
+        setAtual(atual + 1);
+        setSelecionada(null);
+        setAnimating(false);
+      } else {
+        const contagem = {};
+        novas.forEach(r => r.comps.forEach(c => { contagem[c] = (contagem[c] || 0) + 1; }));
+        const ordenadas = Object.entries(contagem).sort((a, b) => b[1] - a[1]).map(([id]) => id);
+        onFinalizar(ordenadas.slice(0, 5), novas);
+      }
+    }, 300);
   };
+
+  const cores = [C.purple, C.cyan, C.green, C.pink];
 
   return (
     <div>
-      <h2 style={{ fontSize: 20, fontWeight: 800, color: DARK, marginBottom: 4 }}>Quiz de perfil 🧩</h2>
-      <p style={{ color: GRAY, fontSize: 13, marginBottom: 16 }}>Responda com sinceridade — não tem certo ou errado!</p>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}>
+        <span style={{ fontSize: 24 }}>🧩</span>
+        <h2 style={{ fontSize: 20, fontWeight: 800, color: C.white, margin: 0 }}>Fase 2: Descobrir suas skills</h2>
+        <span style={{ marginLeft: "auto", fontSize: 11, fontWeight: 700, color: C.xp, background: `${C.xp}20`, padding: "3px 10px", borderRadius: 99 }}>+300 XP</span>
+      </div>
+      <p style={{ color: C.gray, fontSize: 13, marginBottom: 16 }}>Responde com sinceridade. Não tem certo nem errado!</p>
 
-      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
-        <div style={{ flex: 1, height: 6, background: BORDER, borderRadius: 99 }}>
-          <div style={{ height: "100%", width: `${progresso}%`, background: P, borderRadius: 99, transition: "width 0.4s" }} />
+      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}>
+        <div style={{ flex: 1, height: 8, background: C.border, borderRadius: 99, overflow: "hidden" }}>
+          <div style={{ height: "100%", width: `${progresso}%`, background: `linear-gradient(90deg, ${C.purple}, ${C.cyan})`, borderRadius: 99, transition: "width 0.4s" }} />
         </div>
-        <span style={{ fontSize: 12, color: GRAY, fontWeight: 600 }}>{atual + 1}/{QUIZ.length}</span>
+        <span style={{ fontSize: 12, color: C.gray, fontWeight: 700, flexShrink: 0 }}>{atual + 1} / {QUIZ.length}</span>
       </div>
 
-      <div style={{ background: PL, borderRadius: 14, padding: "18px 16px", marginBottom: 16 }}>
-        <p style={{ fontSize: 15, fontWeight: 700, color: DARK, margin: 0, lineHeight: 1.5 }}>{pergunta.pergunta}</p>
+      <div style={{ display: "flex", gap: 4, marginBottom: 20 }}>
+        {QUIZ.map((_, i) => (
+          <div key={i} style={{ flex: 1, height: 4, borderRadius: 99, background: i < atual ? C.purple : i === atual ? C.cyan : C.border, transition: "background 0.3s" }} />
+        ))}
+      </div>
+
+      <div style={{ ...cardStyle, marginBottom: 16, borderColor: C.purple + "60" }}>
+        <p style={{ fontSize: 16, fontWeight: 700, color: C.white, margin: 0, lineHeight: 1.5 }}>{pergunta.pergunta}</p>
       </div>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 20 }}>
         {pergunta.opcoes.map((op, i) => {
-          const sel = selecionada === op.comps;
+          const sel = JSON.stringify(selecionada) === JSON.stringify(op.comps);
           return (
             <div key={i} onClick={() => setSelecionada(op.comps)} style={{
-              border: `2px solid ${sel ? P : BORDER}`,
-              borderRadius: 12, padding: "13px 16px", cursor: "pointer",
-              background: sel ? PL : WHITE, transition: "all 0.15s",
+              border: `2px solid ${sel ? cores[i] : C.border}`,
+              borderRadius: 14,
+              padding: "14px 16px",
+              cursor: "pointer",
+              background: sel ? `${cores[i]}15` : C.card2,
+              transition: "all 0.2s",
               display: "flex", alignItems: "center", gap: 12,
             }}>
-              <div style={{ width: 20, height: 20, borderRadius: "50%", border: `2px solid ${sel ? P : BORDER}`, background: sel ? P : WHITE, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                {sel && <div style={{ width: 8, height: 8, borderRadius: "50%", background: WHITE }} />}
+              <div style={{ width: 22, height: 22, borderRadius: "50%", border: `2px solid ${sel ? cores[i] : C.grayD}`, background: sel ? cores[i] : "transparent", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.2s" }}>
+                {sel && <div style={{ width: 8, height: 8, borderRadius: "50%", background: C.white }} />}
               </div>
-              <span style={{ fontSize: 14, color: DARK, lineHeight: 1.4 }}>{op.texto}</span>
+              <span style={{ fontSize: 14, color: sel ? C.white : C.gray, lineHeight: 1.4, transition: "color 0.2s" }}>{op.texto}</span>
             </div>
           );
         })}
       </div>
 
       <div style={{ display: "flex", gap: 10 }}>
-        {atual > 0 && <Btn outline onClick={() => { setAtual(atual - 1); setSelecionada(null); }} small>← Voltar</Btn>}
-        <button onClick={avancar} disabled={selecionada === null} style={{ flex: 1, background: selecionada ? P : "#CBD5E1", color: WHITE, border: "none", borderRadius: 10, padding: "13px", fontSize: 15, fontWeight: 700, cursor: selecionada ? "pointer" : "not-allowed", fontFamily: "inherit" }}>
-          {atual + 1 === QUIZ.length ? "Ver meu perfil e currículo! 🚀" : "Próxima →"}
-        </button>
+        {atual > 0 && (
+          <button onClick={() => { setAtual(atual - 1); setSelecionada(null); }} style={{ padding: "13px 18px", borderRadius: 12, border: `1.5px solid ${C.border}`, background: "transparent", color: C.gray, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>← Voltar</button>
+        )}
+        <div style={{ flex: 1 }}>
+          <GradBtn onClick={avancar} disabled={!selecionada}>
+            {atual + 1 === QUIZ.length ? "Ver minhas skills! 🚀" : "Próxima →"}
+          </GradBtn>
+        </div>
       </div>
     </div>
   );
@@ -382,7 +422,7 @@ function Quiz({ onFinalizar, onBack }) {
 // ── CHAT ────────────────────────────────────────────────
 function Chat({ dados, comps }) {
   const [msgs, setMsgs] = useState([
-    { role: "assistant", content: `Oi${dados.nome ? " " + dados.nome.split(" ")[0] : ""}! 👋 Sou seu assistente de carreira. Pode me perguntar sobre entrevistas, profissões, cursos ou qualquer dúvida sobre o mercado de trabalho!` }
+    { role: "assistant", content: `E aí${dados.nome ? " " + dados.nome.split(" ")[0] : ""}! 👋 Pode mandar suas dúvidas sobre emprego, entrevistas, vagas ou carreira que eu te ajudo!` }
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -396,60 +436,63 @@ function Chat({ dados, comps }) {
     setMsgs(newMsgs);
     setInput("");
     setLoading(true);
-    const system = `Você é um assistente de carreira para adolescentes brasileiros. Perfil: ${dados.nome}, ${dados.idade || ""} anos, competências: ${comps.map(id => COMP_INFO[id]?.label).join(", ")}. Responda de forma jovem, motivadora e prática. Máximo 3 parágrafos curtos. Use emojis moderadamente.`;
+    const system = `Você é um amigo mais velho ajudando ${dados.nome || "um jovem"} a conseguir o primeiro emprego no Brasil. Skills identificadas: ${comps.map(id => COMP_INFO[id]?.label).filter(Boolean).join(", ")}. Fale de forma natural, direta e descontraída como um amigo de verdade. Sem frases motivacionais forçadas, sem travessões excessivos, sem formalidade. Seja breve e prático. Use emojis com moderação.`;
     const history = newMsgs.slice(1).map(m => ({ role: m.role, content: m.content }));
     try {
       const text = await callIA(history, system);
       setMsgs(prev => [...prev, { role: "assistant", content: text }]);
     } catch {
-      setMsgs(prev => [...prev, { role: "assistant", content: "Ops! Problema de conexão. Tenta de novo 😅" }]);
+      setMsgs(prev => [...prev, { role: "assistant", content: "Ops, tive um problema aqui. Tenta de novo! 😅" }]);
     }
     setLoading(false);
   };
 
   return (
-    <div style={{ border: `1.5px solid ${BORDER}`, borderRadius: 14, overflow: "hidden" }}>
-      <div style={{ background: P, padding: "12px 16px", display: "flex", alignItems: "center", gap: 10 }}>
+    <div style={{ border: `1px solid ${C.border}`, borderRadius: 14, overflow: "hidden" }}>
+      <div style={{ background: `linear-gradient(135deg, ${C.purpleD}, #1a1a2e)`, padding: "12px 16px", display: "flex", alignItems: "center", gap: 10 }}>
         <span style={{ fontSize: 20 }}>🤖</span>
-        <div style={{ color: WHITE, fontWeight: 700, fontSize: 14 }}>Assistente de Carreira</div>
-        <div style={{ marginLeft: "auto", width: 8, height: 8, borderRadius: "50%", background: "#4ADE80" }} />
+        <div style={{ color: C.white, fontWeight: 700, fontSize: 14 }}>Assistente de Carreira</div>
+        <div style={{ marginLeft: "auto", width: 8, height: 8, borderRadius: "50%", background: C.green }} />
       </div>
-      <div style={{ height: 200, overflowY: "auto", padding: "12px", background: LGRAY, display: "flex", flexDirection: "column", gap: 8 }}>
+      <div style={{ height: 220, overflowY: "auto", padding: "12px", background: C.bg, display: "flex", flexDirection: "column", gap: 8 }}>
         {msgs.map((m, i) => (
           <div key={i} style={{ display: "flex", justifyContent: m.role === "user" ? "flex-end" : "flex-start" }}>
-            <div style={{ maxWidth: "80%", background: m.role === "user" ? P : WHITE, color: m.role === "user" ? WHITE : DARK, border: m.role === "assistant" ? `1px solid ${BORDER}` : "none", borderRadius: m.role === "user" ? "14px 14px 4px 14px" : "14px 14px 14px 4px", padding: "9px 13px", fontSize: 13, lineHeight: 1.5, whiteSpace: "pre-wrap" }}>
+            <div style={{ maxWidth: "80%", background: m.role === "user" ? `linear-gradient(135deg, ${C.purple}, ${C.purpleD})` : C.card, color: C.white, border: m.role === "assistant" ? `1px solid ${C.border}` : "none", borderRadius: m.role === "user" ? "14px 14px 4px 14px" : "14px 14px 14px 4px", padding: "9px 13px", fontSize: 13, lineHeight: 1.5, whiteSpace: "pre-wrap" }}>
               {m.content}
             </div>
           </div>
         ))}
-        {loading && <div style={{ display: "flex" }}><div style={{ background: WHITE, border: `1px solid ${BORDER}`, borderRadius: "14px 14px 14px 4px", padding: "9px 13px", fontSize: 13, color: GRAY }}>Digitando...</div></div>}
+        {loading && (
+          <div style={{ display: "flex" }}>
+            <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: "14px 14px 14px 4px", padding: "9px 13px", color: C.gray, fontSize: 13 }}>Digitando...</div>
+          </div>
+        )}
         <div ref={endRef} />
       </div>
-      <div style={{ display: "flex", gap: 8, padding: "10px", borderTop: `1px solid ${BORDER}`, background: WHITE }}>
-        <input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === "Enter" && send()} placeholder="Pergunte sobre carreira, entrevistas, vagas..." style={{ ...inputStyle, flex: 1 }} />
-        <button onClick={send} disabled={!input.trim() || loading} style={{ background: P, color: WHITE, border: "none", borderRadius: 8, padding: "0 14px", cursor: "pointer", fontSize: 16 }}>→</button>
+      <div style={{ display: "flex", gap: 8, padding: "10px", borderTop: `1px solid ${C.border}`, background: C.card }}>
+        <input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === "Enter" && send()} placeholder="Manda sua dúvida aqui..." style={{ ...inputStyle, flex: 1 }} />
+        <button onClick={send} disabled={!input.trim() || loading} style={{ background: C.purple, color: C.white, border: "none", borderRadius: 8, padding: "0 16px", cursor: "pointer", fontSize: 16 }}>→</button>
       </div>
     </div>
   );
 }
 
-// ── CURRÍCULO ───────────────────────────────────────────
-function Curriculo({ dados, comps, respostasQuiz }) {
+// ── CURRICULO ───────────────────────────────────────────
+function Curriculo({ dados, comps, xp, onAddXP }) {
   const [tab, setTab] = useState("curriculo");
   const [curriculo, setCurriculo] = useState("");
   const [dicas, setDicas] = useState("");
   const [loading, setLoading] = useState(true);
+  const [xpAdded, setXpAdded] = useState(false);
 
   const compLabels = comps.map(id => COMP_INFO[id]?.label).filter(Boolean);
   const compDescs = comps.map(id => COMP_INFO[id]).filter(Boolean);
 
   useEffect(() => {
     const gerar = async () => {
-      const base = gerarCurriculoTexto(dados, comps, respostasQuiz);
+      const promptCV = `Crie um currículo profissional para jovem buscando o primeiro emprego.
 
-      const promptCV = `Melhore e complete este currículo para um jovem buscando o primeiro emprego. Use APENAS os dados fornecidos, nunca invente informações. Escreva um Objetivo Profissional e um Resumo de Perfil motivadores baseados nas competências identificadas. Mantenha formato profissional e neutro.
-
-DADOS REAIS:
+DADOS REAIS (use SOMENTE estes, nunca invente):
 Nome: ${dados.nome}
 ${dados.idade ? `Idade: ${dados.idade}` : ""}
 ${dados.cidade ? `Cidade: ${dados.cidade}` : ""}
@@ -457,59 +500,58 @@ Email: ${dados.email}
 ${dados.telefone ? `Telefone: ${dados.telefone}` : ""}
 ${dados.escola ? `Escola: ${dados.escola}` : ""}
 ${dados.tipoFormacao ? `Formação: ${dados.tipoFormacao}${dados.serie ? ` — ${dados.serie}` : ""}` : ""}
+${dados.turno ? `Disponibilidade: ${dados.turno}` : ""}
 ${dados.cursos ? `Cursos: ${dados.cursos}` : ""}
-Competências identificadas pelo quiz: ${compLabels.join(", ")}
+Skills identificadas: ${compLabels.join(", ")}
 
-ESTRUTURA OBRIGATÓRIA (use exatamente estes títulos em maiúsculas):
+ESTRUTURA (use exatamente estes títulos em maiúsculas, sem símbolos ou travessões decorativos):
 DADOS PESSOAIS
 OBJETIVO PROFISSIONAL
 RESUMO DE PERFIL
 FORMAÇÃO ACADÊMICA
-${dados.cursos ? "CURSOS E CERTIFICAÇÕES" : ""}
-COMPETÊNCIAS
+${dados.cursos ? "CURSOS E CERTIFICAÇÕES\n" : ""}HABILIDADES
+DISPONIBILIDADE
 INFORMAÇÕES COMPLEMENTARES
 
-Regra absoluta: não invente cursos, experiências, datas ou qualquer dado não fornecido acima.`;
+Escreve de forma humana e direta. Sem frases genéricas de IA, sem travessões decorativos. Objetivo e resumo devem soar como uma pessoa real falando sobre si mesma.`;
 
-      const promptDicas = `Este jovem fez um quiz e suas principais competências são: ${compLabels.join(", ")}.
+      const promptDicas = `${dados.nome || "Este jovem"} fez um quiz e as principais skills são: ${compLabels.join(", ")}.
 
-Crie 4 dicas PERSONALIZADAS de como contar a história dele na entrevista, usando exemplos concretos do dia a dia de um adolescente brasileiro para demonstrar cada competência. 
+Cria 4 dicas práticas e personalizadas de como contar a história dele numa entrevista de emprego. Para cada dica, sugere uma situação real do dia a dia de um adolescente brasileiro que demonstra essa skill e mostra como transformar isso numa resposta natural na entrevista.
 
-Para cada dica:
-1. Diga qual competência ela demonstra
-2. Sugira uma situação real que o jovem pode ter vivido (escola, família, comunidade, hobbies)
-3. Mostre como transformar isso em resposta profissional na entrevista
-
-Use linguagem jovem e motivadora. Seja específico e prático.`;
+Escreve como um amigo mais velho conversando, sem frases motivacionais forçadas e sem travessões excessivos.`;
 
       try {
         const [cv, d] = await Promise.all([
-          callIA([{ role: "user", content: promptCV }], "Você é especialista em RH e cria currículos profissionais para jovens no Brasil. Responda apenas com o currículo formatado, sem comentários. Use linguagem profissional e neutra."),
-          callIA([{ role: "user", content: promptDicas }], "Você é coach de carreira para adolescentes brasileiros. Seja prático, motivador e use linguagem jovem."),
+          callIA([{ role: "user", content: promptCV }], "Você cria currículos para jovens brasileiros. Responda apenas com o currículo formatado, sem comentários. Linguagem humana e direta, sem clichês de IA, sem travessões decorativos."),
+          callIA([{ role: "user", content: promptDicas }], "Você é um amigo mais velho ajudando um adolescente brasileiro a se preparar para entrevistas. Linguagem natural, direta e descontraída."),
         ]);
         setCurriculo(cv);
         setDicas(d);
       } catch {
-        setCurriculo(base);
-        setDicas("Não foi possível gerar dicas personalizadas. Tente novamente.");
+        setCurriculo(`${dados.nome || ""}\n${[dados.cidade, dados.telefone, dados.email].filter(Boolean).join("  |  ")}\n\nOBJETIVO PROFISSIONAL\nBusco minha primeira oportunidade de trabalho para aprender, crescer e contribuir com a equipe.\n\nFORMAÇÃO ACADÊMICA\n${dados.tipoFormacao || ""}${dados.serie ? " — " + dados.serie : ""}${dados.escola ? " | " + dados.escola : ""}\n\nHABILIDADES\n${compLabels.map(c => "• " + c).join("\n")}\n\nDISPONIBILIDADE\n${dados.turno || "A combinar"}`);
+        setDicas("Sem conexão com a IA no momento. Tenta gerar de novo!");
       }
       setLoading(false);
+      if (!xpAdded) { onAddXP(500); setXpAdded(true); }
     };
     gerar();
   }, []);
 
   const baixarWord = () => {
     const html = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word'><head><meta charset='utf-8'><style>
-body{font-family:Calibri,Arial,sans-serif;font-size:11pt;margin:2.5cm;color:#1E293B}
-h1{font-size:18pt;color:#1E293B;margin:0 0 4pt;border-bottom:2pt solid #2563EB;padding-bottom:4pt}
-.contato{font-size:10pt;color:#64748B;margin:0 0 14pt}
+body{font-family:Calibri,Arial,sans-serif;font-size:11pt;margin:2.5cm;color:#1E293B;line-height:1.5}
+.nome{font-size:22pt;font-weight:bold;color:#1E293B;text-align:center;margin:0 0 4pt;padding-bottom:8pt;border-bottom:2pt solid #2563EB}
+.contato{font-size:10pt;color:#475569;text-align:center;margin:4pt 0 16pt}
 .secao{font-size:9pt;font-weight:bold;color:#2563EB;text-transform:uppercase;letter-spacing:1pt;border-bottom:1pt solid #E2E8F0;padding-bottom:3pt;margin:14pt 0 6pt}
-p{margin:2pt 0;line-height:1.5}
+p{margin:2pt 0}
 </style></head><body>
-${curriculo.split("\n").map(line => {
+${curriculo.split("\n").map((line, i) => {
   if (!line.trim()) return "<br/>";
-  const isHeader = /^[A-ZÁÀÂÃÉÊÍÓÔÕÚÇ][A-ZÁÀÂÃÉÊÍÓÔÕÚÇ\s]{3,}$/.test(line.trim());
-  if (isHeader) return `<div class="secao">${line.trim()}</div>`;
+  if (i === 0) return `<div class="nome">${line}</div>`;
+  if (i === 1 && (line.includes("@") || line.includes("|"))) return `<div class="contato">${line}</div>`;
+  const isSecao = /^[A-ZÁÀÂÃÉÊÍÓÔÕÚÇ][A-ZÁÀÂÃÉÊÍÓÔÕÚÇ\s]{3,}$/.test(line.trim());
+  if (isSecao) return `<div class="secao">${line.trim()}</div>`;
   return `<p>${line}</p>`;
 }).join("")}
 </body></html>`;
@@ -522,115 +564,118 @@ ${curriculo.split("\n").map(line => {
 
   const tabs = [
     { key: "curriculo", label: "📄 Currículo" },
-    { key: "competencias", label: "🧠 Perfil" },
-    { key: "dicas", label: "💡 Entrevista" },
-    { key: "guia", label: "📚 Cursos" },
+    { key: "skills", label: "⚡ Skills" },
+    { key: "entrevista", label: "🎤 Entrevista" },
+    { key: "cursos", label: "🎓 Cursos" },
     { key: "chat", label: "🤖 Chat" },
   ];
 
   return (
     <div>
-      <h2 style={{ fontSize: 20, fontWeight: 800, color: DARK, marginBottom: 4 }}>Seu perfil completo 🌟</h2>
-      <p style={{ color: GRAY, fontSize: 13, marginBottom: 16 }}>
-        Olá, <strong>{dados.nome?.split(" ")[0]}</strong>! Tudo pronto. Explore as abas abaixo!
-      </p>
+      <div style={{ ...cardStyle, background: `linear-gradient(135deg, ${C.purpleD}30, ${C.cyan}20)`, border: `1px solid ${C.purple}40`, marginBottom: 16, textAlign: "center", padding: "16px" }}>
+        <div style={{ fontSize: 36, marginBottom: 4 }}>🏆</div>
+        <h2 style={{ fontSize: 18, fontWeight: 800, color: C.white, margin: "0 0 4px" }}>
+          Parabéns, {dados.nome?.split(" ")[0]}!
+        </h2>
+        <p style={{ fontSize: 13, color: C.gray, margin: 0 }}>Seu perfil tá pronto. Explora as abas abaixo!</p>
+      </div>
 
       <div style={{ display: "flex", gap: 6, marginBottom: 16, overflowX: "auto", paddingBottom: 4 }}>
         {tabs.map(t => (
-          <button key={t.key} onClick={() => setTab(t.key)} style={{ whiteSpace: "nowrap", padding: "8px 12px", borderRadius: 8, border: `1.5px solid ${tab === t.key ? P : BORDER}`, background: tab === t.key ? PL : WHITE, color: tab === t.key ? P : GRAY, fontSize: 12, fontWeight: tab === t.key ? 700 : 500, cursor: "pointer", fontFamily: "inherit" }}>
+          <button key={t.key} onClick={() => setTab(t.key)} style={{ whiteSpace: "nowrap", padding: "8px 12px", borderRadius: 8, border: `1.5px solid ${tab === t.key ? C.purple : C.border}`, background: tab === t.key ? `${C.purple}20` : C.card2, color: tab === t.key ? C.purple : C.gray, fontSize: 12, fontWeight: tab === t.key ? 700 : 500, cursor: "pointer", fontFamily: "inherit" }}>
             {t.label}
           </button>
         ))}
       </div>
 
       {loading && (
-        <div style={{ textAlign: "center", padding: "40px 0", color: GRAY }}>
-          <div style={{ fontSize: 36, marginBottom: 12 }}>⏳</div>
-          <p style={{ fontSize: 14, fontWeight: 600 }}>Gerando seu currículo com IA...</p>
-          <p style={{ fontSize: 12 }}>Isso pode levar alguns segundos</p>
+        <div style={{ textAlign: "center", padding: "40px 0" }}>
+          <div style={{ fontSize: 40, marginBottom: 12 }}>⚡</div>
+          <p style={{ fontSize: 14, fontWeight: 700, color: C.white }}>Gerando seu currículo...</p>
+          <p style={{ fontSize: 12, color: C.gray }}>A IA tá trabalhando por você!</p>
         </div>
       )}
 
       {!loading && tab === "curriculo" && (
         <div>
-          {/* Preview visual do CV */}
-          <div style={{ background: WHITE, border: `1px solid ${BORDER}`, borderRadius: 12, padding: "24px", marginBottom: 12, maxHeight: 420, overflowY: "auto", boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+          <div style={{ background: "#FFFFFF", border: "1px solid #E2E8F0", borderRadius: 12, padding: "28px 24px", marginBottom: 12, maxHeight: 440, overflowY: "auto" }}>
             {curriculo.split("\n").map((line, i) => {
               if (!line.trim()) return <div key={i} style={{ height: 8 }} />;
               const isNome = i === 0;
-              const isSecao = /^[A-ZÁÀÂÃÉÊÍÓÔÕÚÇ][A-ZÁÀÂÃÉÊÍÓÔÕÚÇ\s]{3,}$/.test(line.trim()) && !isNome;
-              if (isNome) return <h2 key={i} style={{ fontSize: 20, fontWeight: 800, color: DARK, margin: "0 0 2px", borderBottom: `2px solid ${P}`, paddingBottom: 6 }}>{line}</h2>;
-              if (isSecao) return <div key={i} style={{ fontSize: 10, fontWeight: 800, color: P, textTransform: "uppercase", letterSpacing: 1, borderBottom: `1px solid ${BORDER}`, paddingBottom: 3, marginTop: 14, marginBottom: 6 }}>{line}</div>;
-              return <p key={i} style={{ fontSize: 13, color: DARK, lineHeight: 1.7, margin: "2px 0" }}>{line}</p>;
+              const isContato = i === 1 && (line.includes("@") || line.includes("|"));
+              const isSecao = !isNome && !isContato && /^[A-ZÁÀÂÃÉÊÍÓÔÕÚÇ][A-ZÁÀÂÃÉÊÍÓÔÕÚÇ\s]{3,}$/.test(line.trim());
+              if (isNome) return <h2 key={i} style={{ fontSize: 22, fontWeight: 800, color: "#1E293B", margin: "0 0 4px", textAlign: "center", borderBottom: "2px solid #2563EB", paddingBottom: 8 }}>{line}</h2>;
+              if (isContato) return <p key={i} style={{ fontSize: 11, color: "#475569", textAlign: "center", margin: "4px 0 16px" }}>{line}</p>;
+              if (isSecao) return <div key={i} style={{ fontSize: 9, fontWeight: 800, color: "#2563EB", textTransform: "uppercase", letterSpacing: 1, borderBottom: "1px solid #E2E8F0", paddingBottom: 3, marginTop: 14, marginBottom: 6 }}>{line}</div>;
+              return <p key={i} style={{ fontSize: 12, color: "#1E293B", lineHeight: 1.7, margin: "2px 0" }}>{line}</p>;
             })}
           </div>
           <div style={{ display: "flex", gap: 8 }}>
-            <button onClick={baixarWord} style={{ flex: 2, background: P, color: WHITE, border: "none", borderRadius: 10, padding: "12px", fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>
-              ⬇️ Baixar como Word (.doc)
+            <button onClick={baixarWord} style={{ flex: 2, background: `linear-gradient(135deg, ${C.purple}, ${C.cyan})`, color: C.white, border: "none", borderRadius: 10, padding: "12px", fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>
+              ⬇️ Baixar Word (.doc)
             </button>
-            <button onClick={() => { navigator.clipboard?.writeText(curriculo); alert("Copiado! 📋"); }} style={{ flex: 1, background: WHITE, color: P, border: `2px solid ${P}`, borderRadius: 10, padding: "12px", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>
+            <button onClick={() => { navigator.clipboard?.writeText(curriculo); alert("Copiado! 📋"); }} style={{ flex: 1, background: "transparent", color: C.purple, border: `2px solid ${C.purple}`, borderRadius: 10, padding: "12px", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>
               📋 Copiar
             </button>
           </div>
         </div>
       )}
 
-      {!loading && tab === "competencias" && (
+      {!loading && tab === "skills" && (
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          <p style={{ fontSize: 13, color: GRAY, margin: "0 0 8px" }}>Suas <strong>{compDescs.length} principais competências</strong> identificadas pelo quiz:</p>
+          <p style={{ fontSize: 13, color: C.gray, margin: "0 0 4px" }}>Suas <strong style={{ color: C.white }}>{compDescs.length} principais skills</strong> descobertas no quiz:</p>
           {compDescs.map((comp, i) => (
-            <div key={i} style={{ background: WHITE, border: `1.5px solid ${BORDER}`, borderRadius: 12, padding: "14px 16px", borderLeft: `4px solid ${P}` }}>
+            <div key={i} style={{ ...cardStyle, borderLeft: `4px solid ${comp.cor}`, padding: "14px 16px" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
                 <span style={{ fontSize: 22 }}>{comp.emoji}</span>
                 <div>
-                  <div style={{ fontWeight: 700, fontSize: 14, color: DARK }}>{comp.label}</div>
-                  <div style={{ fontSize: 12, color: P, fontWeight: 600 }}>Competência #{i + 1}</div>
+                  <div style={{ fontWeight: 700, fontSize: 14, color: C.white }}>{comp.label}</div>
+                  <div style={{ fontSize: 11, color: comp.cor, fontWeight: 700 }}>SKILL #{i + 1}</div>
                 </div>
+                <div style={{ marginLeft: "auto", background: `${comp.cor}20`, border: `1px solid ${comp.cor}40`, borderRadius: 8, padding: "4px 10px", fontSize: 11, fontWeight: 700, color: comp.cor }}>+{(5 - i) * 20} pts</div>
               </div>
-              <p style={{ fontSize: 13, color: GRAY, margin: 0, lineHeight: 1.5 }}>{comp.desc}</p>
+              <p style={{ fontSize: 13, color: C.gray, margin: 0, lineHeight: 1.5 }}>{comp.desc}</p>
             </div>
           ))}
         </div>
       )}
 
-      {!loading && tab === "dicas" && (
+      {!loading && tab === "entrevista" && (
         <div>
-          <div style={{ background: PL, border: `1px solid ${P}20`, borderRadius: 12, padding: "12px 14px", marginBottom: 16 }}>
-            <p style={{ fontSize: 13, color: P, fontWeight: 700, margin: "0 0 4px" }}>💡 Como contar sua história</p>
-            <p style={{ fontSize: 12, color: GRAY, margin: 0 }}>Dicas personalizadas baseadas no seu perfil para se destacar na entrevista</p>
+          <div style={{ ...cardStyle, borderColor: C.cyan + "40", marginBottom: 16 }}>
+            <p style={{ fontSize: 13, color: C.cyan, fontWeight: 700, margin: "0 0 4px" }}>💡 Como contar sua história</p>
+            <p style={{ fontSize: 12, color: C.gray, margin: 0 }}>Dicas baseadas nas suas skills pra você arrasar na entrevista</p>
           </div>
-          <div style={{ background: WHITE, border: `1px solid ${BORDER}`, borderRadius: 12, padding: "16px", maxHeight: 380, overflowY: "auto", whiteSpace: "pre-wrap", fontSize: 13, lineHeight: 1.7, color: DARK }}>
+          <div style={{ ...cardStyle, marginBottom: 16, maxHeight: 320, overflowY: "auto", whiteSpace: "pre-wrap", fontSize: 13, lineHeight: 1.7, color: C.white }}>
             {dicas}
           </div>
-          <div style={{ marginTop: 16 }}>
-            <p style={{ fontSize: 13, fontWeight: 700, color: DARK, marginBottom: 10 }}>🎤 Dicas gerais de entrevista:</p>
-            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-              {DICAS_ENTREVISTA.map((d, i) => (
-                <div key={i} style={{ display: "flex", gap: 12, background: LGRAY, borderRadius: 10, padding: "10px 12px" }}>
-                  <span style={{ fontSize: 20, flexShrink: 0 }}>{d.icon}</span>
-                  <div>
-                    <div style={{ fontWeight: 700, fontSize: 13, color: DARK, marginBottom: 2 }}>{d.titulo}</div>
-                    <div style={{ fontSize: 12, color: GRAY, lineHeight: 1.5 }}>{d.dica}</div>
-                  </div>
+          <p style={{ fontSize: 13, fontWeight: 700, color: C.white, margin: "0 0 10px" }}>🎤 Dicas gerais:</p>
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            {DICAS_ENTREVISTA.map((d, i) => (
+              <div key={i} style={{ display: "flex", gap: 12, ...cardStyle, padding: "12px 14px" }}>
+                <span style={{ fontSize: 20, flexShrink: 0 }}>{d.icon}</span>
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: 13, color: C.white, marginBottom: 2 }}>{d.titulo}</div>
+                  <div style={{ fontSize: 12, color: C.gray, lineHeight: 1.5 }}>{d.dica}</div>
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
         </div>
       )}
 
-      {!loading && tab === "guia" && (
-        <div style={{ display: "flex", flexDirection: "column", gap: 10, maxHeight: 420, overflowY: "auto" }}>
-          <p style={{ fontSize: 13, color: GRAY, margin: "0 0 8px" }}>🎓 Cursos gratuitos com certificado reconhecido:</p>
+      {!loading && tab === "cursos" && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          <p style={{ fontSize: 13, color: C.gray, margin: "0 0 4px" }}>🎓 Todos gratuitos e com certificado:</p>
           {CURSOS.map((c, i) => (
-            <div key={i} style={{ background: WHITE, border: `1px solid ${BORDER}`, borderRadius: 12, padding: "12px 14px", display: "flex", alignItems: "center", gap: 12 }}>
+            <div key={i} style={{ ...cardStyle, display: "flex", alignItems: "center", gap: 12, padding: "12px 14px" }}>
               <div style={{ flex: 1 }}>
-                <div style={{ fontWeight: 700, fontSize: 13, color: DARK, marginBottom: 2 }}>{c.nome}</div>
-                <div style={{ fontSize: 12, color: GRAY }}>{c.areas}</div>
+                <div style={{ fontWeight: 700, fontSize: 13, color: C.white, marginBottom: 2 }}>{c.nome}</div>
+                <div style={{ fontSize: 12, color: C.gray }}>{c.areas}</div>
               </div>
               <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6 }}>
-                <span style={{ background: "#DCFCE7", color: GREEN, fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 99 }}>{c.badge}</span>
-                <a href={c.url} target="_blank" rel="noreferrer" style={{ fontSize: 11, color: P, fontWeight: 600, textDecoration: "none" }}>Acessar →</a>
+                <span style={{ background: `${C.green}20`, color: C.green, fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 99 }}>{c.badge}</span>
+                <a href={c.url} target="_blank" rel="noreferrer" style={{ fontSize: 11, color: C.cyan, fontWeight: 600, textDecoration: "none" }}>Acessar →</a>
               </div>
             </div>
           ))}
@@ -640,8 +685,8 @@ ${curriculo.split("\n").map(line => {
       {!loading && tab === "chat" && <Chat dados={dados} comps={comps} />}
 
       {!loading && (
-        <button onClick={() => window.location.reload()} style={{ width: "100%", marginTop: 14, padding: "10px", borderRadius: 10, border: `1.5px solid ${BORDER}`, background: WHITE, color: GRAY, fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
-          🔄 Recomeçar do início
+        <button onClick={() => window.location.reload()} style={{ width: "100%", marginTop: 14, padding: "10px", borderRadius: 10, border: `1.5px solid ${C.border}`, background: "transparent", color: C.gray, fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+          🔄 Recomeçar do zero
         </button>
       )}
     </div>
@@ -654,16 +699,33 @@ export default function App() {
   const [dados, setDados] = useState({});
   const [comps, setComps] = useState([]);
   const [respostasQuiz, setRespostasQuiz] = useState([]);
+  const [xp, setXp] = useState(0);
 
   const upd = (k, v) => setDados(p => ({ ...p, [k]: v }));
+  const addXP = (v) => setXp(p => p + v);
+
+  const goStep = (s, xpGain) => {
+    if (xpGain) addXP(xpGain);
+    setStep(s);
+  };
 
   return (
-    <div style={{ maxWidth: 580, margin: "0 auto", padding: "16px 16px 48px", fontFamily: "'Inter', system-ui, sans-serif", background: WHITE, minHeight: "100vh" }}>
-      {step !== "inicio" && <ProgressBar step={step} />}
+    <div style={{ maxWidth: 580, margin: "0 auto", padding: "16px 16px 48px", fontFamily: "'Inter', system-ui, sans-serif", background: C.bg, minHeight: "100vh", color: C.white }}>
+      <style>{`
+        * { box-sizing: border-box; }
+        input::placeholder { color: #475569; }
+        select option { background: #1A1A2E; color: #F1F5F9; }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: #1A1A2E; }
+        ::-webkit-scrollbar-thumb { background: #2D2D5E; border-radius: 99px; }
+      `}</style>
+
+      {step !== "inicio" && <XPBar xp={xp} />}
+
       {step === "inicio" && <Inicio onNext={() => setStep("perfil")} />}
-      {step === "perfil" && <Perfil dados={dados} onChange={upd} onNext={() => setStep("quiz")} onBack={() => setStep("inicio")} />}
-      {step === "quiz" && <Quiz onFinalizar={(c, r) => { setComps(c); setRespostasQuiz(r); setStep("curriculo"); }} onBack={() => setStep("perfil")} />}
-      {step === "curriculo" && <Curriculo dados={dados} comps={comps} respostasQuiz={respostasQuiz} />}
+      {step === "perfil" && <Perfil dados={dados} onChange={upd} onNext={() => goStep("quiz", 150)} onBack={() => setStep("inicio")} />}
+      {step === "quiz" && <Quiz onFinalizar={(c, r) => { setComps(c); setRespostasQuiz(r); goStep("curriculo", 300); }} onBack={() => setStep("perfil")} />}
+      {step === "curriculo" && <Curriculo dados={dados} comps={comps} xp={xp} onAddXP={addXP} />}
     </div>
   );
 }
