@@ -710,7 +710,8 @@ ${curriculo.split("\n").map((line, i) => {
   const tabs = [
     { key: "curriculo", label: "📄 Currículo" },
     { key: "skills", label: "⚡ Skills" },
-    { key: "entrevista", label: "🎤 Entrevista" },
+    { key: "entrevista", label: "🎤 Dicas IA" },
+    { key: "geraisdicas", label: "📋 Dicas Gerais" },
     { key: "cursos", label: "🎓 Cursos" },
     { key: "chat", label: "🤖 Chat" },
   ];
@@ -794,23 +795,29 @@ ${curriculo.split("\n").map((line, i) => {
         <div>
           <div style={{ ...cardStyle, borderColor: C.cyan + "40", marginBottom: 16 }}>
             <p style={{ fontSize: 13, color: C.cyan, fontWeight: 700, margin: "0 0 4px" }}>💡 Como contar sua história</p>
-            <p style={{ fontSize: 12, color: C.gray, margin: 0 }}>Dicas baseadas nas suas skills pra você arrasar na entrevista</p>
+            <p style={{ fontSize: 12, color: C.gray, margin: 0 }}>Dicas personalizadas baseadas nas suas skills pra você arrasar</p>
           </div>
-          <div style={{ ...cardStyle, marginBottom: 16, maxHeight: 320, overflowY: "auto", whiteSpace: "pre-wrap", fontSize: 13, lineHeight: 1.7, color: C.white }}>
+          <div style={{ ...cardStyle, maxHeight: 420, overflowY: "auto", whiteSpace: "pre-wrap", fontSize: 13, lineHeight: 1.7, color: C.white }}>
             {dicas}
           </div>
-          <p style={{ fontSize: 13, fontWeight: 700, color: C.white, margin: "0 0 10px" }}>🎤 Dicas gerais:</p>
-          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            {DICAS_ENTREVISTA.map((d, i) => (
-              <div key={i} style={{ display: "flex", gap: 12, ...cardStyle, padding: "12px 14px" }}>
-                <span style={{ fontSize: 20, flexShrink: 0 }}>{d.icon}</span>
-                <div>
-                  <div style={{ fontWeight: 700, fontSize: 13, color: C.white, marginBottom: 2 }}>{d.titulo}</div>
-                  <div style={{ fontSize: 12, color: C.gray, lineHeight: 1.5 }}>{d.dica}</div>
-                </div>
-              </div>
-            ))}
+        </div>
+      )}
+
+      {!loading && tab === "geraisdicas" && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          <div style={{ ...cardStyle, borderColor: C.purple + "40", marginBottom: 4 }}>
+            <p style={{ fontSize: 13, color: C.purple, fontWeight: 700, margin: "0 0 4px" }}>🎤 Dicas gerais de entrevista</p>
+            <p style={{ fontSize: 12, color: C.gray, margin: 0 }}>Comportamentos e atitudes que fazem diferença na hora H</p>
           </div>
+          {DICAS_ENTREVISTA.map((d, i) => (
+            <div key={i} style={{ display: "flex", gap: 12, ...cardStyle, padding: "12px 14px" }}>
+              <span style={{ fontSize: 20, flexShrink: 0 }}>{d.icon}</span>
+              <div>
+                <div style={{ fontWeight: 700, fontSize: 13, color: C.white, marginBottom: 2 }}>{d.titulo}</div>
+                <div style={{ fontSize: 12, color: C.gray, lineHeight: 1.5 }}>{d.dica}</div>
+              </div>
+            </div>
+          ))}
         </div>
       )}
 
