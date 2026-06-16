@@ -517,9 +517,18 @@ Escreve de forma humana e direta. Sem frases genéricas de IA, sem travessões d
 
       const promptDicas = `${dados.nome || "Este jovem"} fez um quiz e as principais skills são: ${compLabels.join(", ")}.
 
-Cria 4 dicas práticas e personalizadas de como contar a história dele numa entrevista de emprego. Para cada dica, sugere uma situação real do dia a dia de um adolescente brasileiro que demonstra essa skill e mostra como transformar isso numa resposta natural na entrevista.
+Cria 4 dicas de como contar a história dele numa entrevista. Para cada skill, sugere uma situação concreta que um adolescente brasileiro pode ter vivido de verdade, focando em:
+- Projetos escolares relevantes (feiras, apresentações, trabalhos que deram resultado)
+- Criação de conteúdo digital (edição, redes sociais, design, programação)
+- Geração de renda própria (venda de produtos, serviços, freelas)
+- Voluntariado e ação comunitária (igreja, ONG, projeto social, campanha)
+- Ensinar ou ajudar alguém (reforço escolar, tutoriais, suporte técnico)
+- Aprendizado autônomo (cursos online, tutoriais, projetos pessoais)
+- Liderança informal (organizar grupo, mediar conflito, coordenar algo)
 
-Escreve como um amigo mais velho conversando, sem frases motivacionais forçadas e sem travessões excessivos.`;
+Evita exemplos genéricos e fúteis como passear com animal, fazer compras ou tarefas domésticas simples. Foca em realizações que mostrem competência real.
+
+Mostra como transformar cada situação numa resposta direta e natural na entrevista. Escreve como um amigo mais velho, sem frases motivacionais e sem travessões excessivos.`;
 
       try {
         const [cv, d] = await Promise.all([
