@@ -101,14 +101,16 @@ const COMP_INFO = {
 const TURNOS = ["Manhã", "Tarde", "Noite", "Manhã e Tarde", "Tarde e Noite", "Qualquer horário", "Fins de semana", "Período integral"];
 
 const CURSOS = [
-  { nome: "Escola Virtual Bradesco", url: "https://www.ev.org.br/cursos", areas: "Informática, Administração, IA, Inglês", badge: "TOP" },
-  { nome: "Google Skillshop", url: "https://skillshop.withgoogle.com", areas: "Marketing Digital, Analytics, IA", badge: "Google" },
-  { nome: "Microsoft Learn", url: "https://learn.microsoft.com/pt-br/training/browse", areas: "Office, Power BI, Azure", badge: "Microsoft" },
-  { nome: "IBM SkillsBuild", url: "https://skillsbuild.org/pt-BR", areas: "IA, Dados, Cibersegurança", badge: "IBM" },
+  { nome: "Escola Virtual Bradesco", url: "https://www.ev.org.br/cursos", areas: "Informática, Administração, IA, Inglês — +88 cursos gratuitos", badge: "TOP" },
+  { nome: "FIAP — Eu Capacito", url: "https://on.fiap.com.br/local/programaeucapacito/", areas: "Tecnologia, IA, Programação, Segurança — +250 cursos gratuitos", badge: "FIAP" },
+  { nome: "FGV Online", url: "https://educacao-executiva.fgv.br/cursos/gratuitos", areas: "Negócios, Gestão, Finanças, Direito, IA — +200 cursos gratuitos", badge: "FGV" },
+  { nome: "Harvard — HarvardX", url: "https://www.edx.org/school/harvardx", areas: "Computação, IA, Negócios, Dados — legendas em português", badge: "Harvard" },
+  { nome: "Google Skillshop", url: "https://skillshop.withgoogle.com", areas: "Marketing Digital, Analytics, IA — certificado Google", badge: "Google" },
+  { nome: "Microsoft Learn", url: "https://learn.microsoft.com/pt-br/training/browse", areas: "Office, Power BI, Azure, IA", badge: "Microsoft" },
+  { nome: "IBM SkillsBuild", url: "https://skillsbuild.org/pt-BR", areas: "IA, Dados, Cibersegurança, Cloud", badge: "IBM" },
   { nome: "SENAI Play", url: "https://play.senai.br/cursos", areas: "Tecnologia, Indústria, Qualidade", badge: "SENAI" },
-  { nome: "Khan Academy", url: "https://pt.khanacademy.org", areas: "Matemática, Programação, Ciências", badge: "Free" },
-  { nome: "SEBRAE Online", url: "https://www.sebrae.com.br/sites/PortalSebrae/cursosonline", areas: "Empreendedorismo, Vendas, Gestão", badge: "Free" },
-  { nome: "Coursera (Google)", url: "https://www.coursera.org/google", areas: "TI, Dados, UX — bolsas disponíveis", badge: "Free" },
+  { nome: "Khan Academy", url: "https://pt.khanacademy.org", areas: "Matemática, Programação, Ciências — 100% gratuito", badge: "Khan" },
+  { nome: "SEBRAE Online", url: "https://www.sebrae.com.br/sites/PortalSebrae/cursosonline", areas: "Empreendedorismo, Vendas, Gestão", badge: "SEBRAE" },
 ];
 
 const DICAS_ENTREVISTA = [
