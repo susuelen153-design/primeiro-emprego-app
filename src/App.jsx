@@ -805,7 +805,11 @@ ${curriculo.split("\n").map((line, i) => {
 
       {!loading && tab === "cursos" && (
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          <p style={{ fontSize: 13, color: C.gray, margin: "0 0 4px" }}>🎓 Todos gratuitos e com certificado:</p>
+          <div style={{ background: `linear-gradient(135deg, ${C.purpleD}30, ${C.cyan}20)`, border: `1px solid ${C.purple}40`, borderRadius: 14, padding: "16px", marginBottom: 4 }}>
+            <p style={{ fontSize: 15, fontWeight: 800, color: C.white, margin: "0 0 4px" }}>🎯 Bora se preparar!</p>
+            <p style={{ fontSize: 13, color: C.gray, margin: 0, lineHeight: 1.6 }}>Separamos um repositório de cursos gratuitos pra você treinar suas skills e chegar mais forte no mercado de trabalho. Tudo de graça, tudo com certificado.</p>
+          </div>
+          <p style={{ fontSize: 12, color: C.gray, margin: "4px 0 2px", fontWeight: 600, textTransform: "uppercase", letterSpacing: 0.5 }}>🎓 Escolha por onde começar:</p>
           {CURSOS.map((c, i) => (
             <div key={i} style={{ ...cardStyle, display: "flex", alignItems: "center", gap: 12, padding: "12px 14px" }}>
               <div style={{ flex: 1 }}>
