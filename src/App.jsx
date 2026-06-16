@@ -532,7 +532,7 @@ Mostra como transformar cada situação numa resposta direta e natural na entrev
 
       try {
         const [cv, d] = await Promise.all([
-          callIA([{ role: "user", content: promptCV }], "Você cria currículos para jovens brasileiros. Responda apenas com o currículo formatado, sem comentários. Linguagem humana e direta, sem clichês de IA, sem travessões decorativos."),
+          callIA([{ role: "user", content: promptCV }], "Você cria currículos para jovens brasileiros. Responda apenas com o currículo formatado, sem comentários. Linguagem humana e direta, sem clichês de IA, sem travessões decorativos. Evite palavras como 'discutir', 'anseio', 'vislumbrar', 'almejo' e outras que soam artificiais. Use frases naturais como 'trocar ideias', 'contribuir com', 'aprender com a equipe', 'fazer parte de'."),
           callIA([{ role: "user", content: promptDicas }], "Você é um amigo mais velho ajudando um adolescente brasileiro a se preparar para entrevistas. Linguagem natural, direta e descontraída."),
         ]);
         setCurriculo(cv);
