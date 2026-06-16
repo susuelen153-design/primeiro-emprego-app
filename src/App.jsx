@@ -608,7 +608,16 @@ function Curriculo({ dados, comps, xp, onAddXP }) {
 
   useEffect(() => {
     const gerar = async () => {
-      const promptCV = `Crie um currículo profissional para jovem buscando o primeiro emprego.
+      const idade = parseInt(dados.idade) || 0;
+      const perfilIdade = idade <= 17
+        ? "adolescente de até 17 anos, elegível para Jovem Aprendiz. Foque em vagas de Jovem Aprendiz e Estágio. Tom motivador para quem está dando o primeiro passo."
+        : idade <= 24
+        ? "jovem entre 18 e 24 anos, pode ser início de carreira ou já ter alguma experiência. Pode se candidatar a Jovem Aprendiz (até 24 anos), Estágio e vagas de entrada."
+        : "pessoa acima de 24 anos buscando recolocação ou primeiro emprego formal. Tom mais maduro, foque em vagas CLT e Estágio para adultos.";
+
+      const promptCV = `Crie um currículo profissional adaptado ao perfil etário da pessoa.
+
+PERFIL: ${perfilIdade}
 
 DADOS REAIS (use SOMENTE estes, nunca invente):
 Nome: ${dados.nome}
