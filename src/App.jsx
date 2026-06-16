@@ -255,6 +255,83 @@ const SERIES = {
   "Graduação": ["1º", "2º", "3º", "4º", "5º", "6º", "7º", "8º semestre", "Concluído"],
 };
 
+const MESES = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
+const ANOS = Array.from({length: 10}, (_, i) => String(new Date().getFullYear() - i));
+const TIPOS_EXP = ["Emprego com carteira assinada","Estágio","Jovem Aprendiz","Freela / Autônomo","Trabalho em negócio da família","Voluntariado","Outro"];
+
+function ExperienciaCard({ exp, idx, onChange, onRemove }) {
+  const chg = (k, v) => onChange(idx, { ...exp, [k]: v });
+  return (
+    <div style={{ background: C.card2, border: `1.5px solid ${C.purple}40`, borderRadius: 14, padding: "14px 16px", marginBottom: 10 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+        <span style={{ fontSize: 13, fontWeight: 700, color: C.purple }}>Experiência #{idx + 1}</span>
+        <button onClick={onRemove} style={{ background: "transparent", border: "none", color: C.gray, cursor: "pointer", fontSize: 18, lineHeight: 1 }}>✕</button>
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+        <div style={{ gridColumn: "span 2" }}>
+          <Label>Tipo de experiência</Label>
+          <select style={selectStyle} value={exp.tipo || ""} onChange={e => chg("tipo", e.target.value)}>
+            <option value="" disabled>Selecione...</option>
+            {TIPOS_EXP.map(t => <option key={t} value={t}>{t}</option>)}
+          </select>
+        </div>
+        <div style={{ gridColumn: "span 2" }}>
+          <Label>Cargo / Função</Label>
+          <input style={inputStyle} placeholder="Ex: Atendente, Designer, Assistente..." value={exp.cargo || ""} onChange={e => chg("cargo", e.target.value)} />
+        </div>
+        <div style={{ gridColumn: "span 2" }}>
+          <Label>Empresa / Cliente / Local</Label>
+          <input style={inputStyle} placeholder="Ex: Lanchonete X, Freela p/ clientes, Negócio da família..." value={exp.empresa || ""} onChange={e => chg("empresa", e.target.value)} />
+        </div>
+        <div>
+          <Label>Início</Label>
+          <div style={{ display: "flex", gap: 6 }}>
+            <select style={{ ...selectStyle, flex: 1 }} value={exp.inicioMes || ""} onChange={e => chg("inicioMes", e.target.value)}>
+              <option value="" disabled>Mês</option>
+              {MESES.map((m, i) => <option key={m} value={String(i+1).padStart(2,"0")}>{m}</option>)}
+            </select>
+            <select style={{ ...selectStyle, flex: 1 }} value={exp.inicioAno || ""} onChange={e => chg("inicioAno", e.target.value)}>
+              <option value="" disabled>Ano</option>
+              {ANOS.map(a => <option key={a} value={a}>{a}</option>)}
+            </select>
+          </div>
+        </div>
+        <div>
+          <Label>Fim</Label>
+          <div style={{ display: "flex", gap: 6 }}>
+            {exp.atual ? (
+              <div style={{ flex: 1, padding: "10px 12px", background: `${C.green}20`, border: `1.5px solid ${C.green}40`, borderRadius: 8, fontSize: 13, color: C.green, fontWeight: 600 }}>Atual</div>
+            ) : (
+              <>
+                <select style={{ ...selectStyle, flex: 1 }} value={exp.fimMes || ""} onChange={e => chg("fimMes", e.target.value)}>
+                  <option value="" disabled>Mês</option>
+                  {MESES.map((m, i) => <option key={m} value={String(i+1).padStart(2,"0")}>{m}</option>)}
+                </select>
+                <select style={{ ...selectStyle, flex: 1 }} value={exp.fimAno || ""} onChange={e => chg("fimAno", e.target.value)}>
+                  <option value="" disabled>Ano</option>
+                  {ANOS.map(a => <option key={a} value={a}>{a}</option>)}
+                </select>
+              </>
+            )}
+          </div>
+          <label style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 6, cursor: "pointer" }}>
+            <input type="checkbox" checked={exp.atual || false} onChange={e => chg("atual", e.target.checked)} style={{ accentColor: C.purple }} />
+            <span style={{ fontSize: 12, color: C.gray }}>Trabalho atual</span>
+          </label>
+        </div>
+        <div style={{ gridColumn: "span 2" }}>
+          <Label>O que você fazia? (opcional)</Label>
+          <textarea style={{ ...inputStyle, resize: "vertical", minHeight: 60, lineHeight: 1.5 }}
+            placeholder="Descreva brevemente suas tarefas e o que aprendeu..."
+            value={exp.descricao || ""}
+            onChange={e => chg("descricao", e.target.value)}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function Perfil({ dados, onChange, onNext, onBack }) {
   const canNext = dados.nome && dados.email;
   return (
@@ -317,15 +394,45 @@ function Perfil({ dados, onChange, onNext, onBack }) {
           <input style={inputStyle} placeholder="Ex: Excel básico, inglês, informática..." value={dados.cursos || ""} onChange={e => onChange("cursos", e.target.value)} />
         </div>
         <div style={{ gridColumn: "span 2" }}>
-          <Label>Já trabalhou ou fez algum freela? (opcional)</Label>
-          <textarea
-            style={{ ...inputStyle, resize: "vertical", minHeight: 80, lineHeight: 1.5 }}
-            placeholder="Conta aqui! Ex: trabalhei 6 meses como atendente numa lanchonete, fiz freela de design pra alguns clientes, ajudei no negócio da família... qualquer experiência conta!"
-            value={dados.experiencia || ""}
-            onChange={e => onChange("experiencia", e.target.value)}
-          />
+          <Label>Já trabalhou ou fez algum freela?</Label>
+          <div style={{ display: "flex", gap: 8 }}>
+            {["Sim", "Não"].map(op => (
+              <button key={op} type="button" onClick={() => onChange("temExperiencia", op)}
+                style={{ flex: 1, padding: "10px", borderRadius: 10, border: `2px solid ${dados.temExperiencia === op ? C.purple : C.border}`, background: dados.temExperiencia === op ? `${C.purple}20` : C.card2, color: dados.temExperiencia === op ? C.purple : C.gray, fontWeight: 700, fontSize: 14, cursor: "pointer", fontFamily: "inherit" }}>
+                {op === "Sim" ? "✅ Sim" : "❌ Ainda não"}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
+
+      {dados.temExperiencia === "Sim" && (
+        <div style={{ marginBottom: 16 }}>
+          {(dados.experiencias || []).map((exp, idx) => (
+            <ExperienciaCard
+              key={idx}
+              exp={exp}
+              idx={idx}
+              onChange={(i, val) => {
+                const novas = [...(dados.experiencias || [])];
+                novas[i] = val;
+                onChange("experiencias", novas);
+              }}
+              onRemove={() => {
+                const novas = (dados.experiencias || []).filter((_, i) => i !== idx);
+                onChange("experiencias", novas);
+              }}
+            />
+          ))}
+          <button
+            type="button"
+            onClick={() => onChange("experiencias", [...(dados.experiencias || []), {}])}
+            style={{ width: "100%", padding: "11px", borderRadius: 10, border: `2px dashed ${C.purple}60`, background: "transparent", color: C.purple, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "inherit", marginBottom: 4 }}
+          >
+            + Adicionar experiência
+          </button>
+        </div>
+      )}
 
       <div style={{ display: "flex", gap: 10 }}>
         <button onClick={onBack} style={{ padding: "13px 18px", borderRadius: 12, border: `1.5px solid ${C.border}`, background: "transparent", color: C.gray, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>← Voltar</button>
@@ -514,14 +621,15 @@ ${dados.tipoFormacao ? `Formação: ${dados.tipoFormacao}${dados.serie ? ` — $
 ${dados.turno ? `Disponibilidade: ${dados.turno}` : ""}
 ${dados.cursos ? `Cursos: ${dados.cursos}` : ""}
 Skills identificadas: ${compLabels.join(", ")}
-${dados.experiencia ? `Experiências anteriores relatadas pela pessoa: ${dados.experiencia}` : ""}
+${dados.temExperiencia === "Sim" && dados.experiencias?.length ? `Experiências anteriores:
+${(dados.experiencias || []).map((e, i) => `${i+1}. ${e.tipo || ""} | ${e.cargo || ""} | ${e.empresa || ""} | ${e.inicioMes ? MESES[parseInt(e.inicioMes)-1] : ""}/${e.inicioAno || ""} até ${e.atual ? "Atual" : `${e.fimMes ? MESES[parseInt(e.fimMes)-1] : ""}/${e.fimAno || ""}`}${e.descricao ? ` | ${e.descricao}` : ""}`).join("\n")}` : ""}
 
 ESTRUTURA OBRIGATÓRIA (siga exatamente esta ordem):
 - Primeira linha: apenas o nome completo da pessoa, sem nenhum título antes
 - Segunda linha: cidade, telefone e email separados por | 
-- Depois as seções em maiúsculas nesta ordem: OBJETIVO PROFISSIONAL, RESUMO DE PERFIL${dados.experiencia ? ", EXPERIÊNCIA PROFISSIONAL" : ""}, FORMAÇÃO ACADÊMICA${dados.cursos ? ", CURSOS E CERTIFICAÇÕES" : ""}, HABILIDADES, DISPONIBILIDADE, INFORMAÇÕES COMPLEMENTARES
+- Depois as seções em maiúsculas nesta ordem: OBJETIVO PROFISSIONAL, RESUMO DE PERFIL${dados.temExperiencia === "Sim" && dados.experiencias?.length ? ", EXPERIÊNCIA PROFISSIONAL" : ""}, FORMAÇÃO ACADÊMICA${dados.cursos ? ", CURSOS E CERTIFICAÇÕES" : ""}, HABILIDADES, DISPONIBILIDADE, INFORMAÇÕES COMPLEMENTARES
 
-${dados.experiencia ? "Na seção EXPERIÊNCIA PROFISSIONAL: use o que a pessoa relatou e escreva de forma profissional, valorizando mesmo experiências informais como freela, trabalho em família ou bicos. Não invente cargos ou empresas que não foram mencionados." : "Não inclua seção de experiência profissional pois a pessoa não relatou nenhuma."}
+${dados.temExperiencia === "Sim" && dados.experiencias?.length ? "Na seção EXPERIÊNCIA PROFISSIONAL: use exatamente os dados informados (cargo, empresa, período). Escreva de forma profissional valorizando qualquer tipo de experiência, formal ou informal. Não invente nada." : "Não inclua seção de experiência profissional."}
 NÃO coloque "DADOS PESSOAIS" como título antes do nome. O nome já é o cabeçalho.
 
 Escreve de forma humana e direta. Sem frases genéricas de IA, sem travessões decorativos. Objetivo e resumo devem soar como uma pessoa real falando sobre si mesma.`;
