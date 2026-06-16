@@ -506,14 +506,12 @@ ${dados.turno ? `Disponibilidade: ${dados.turno}` : ""}
 ${dados.cursos ? `Cursos: ${dados.cursos}` : ""}
 Skills identificadas: ${compLabels.join(", ")}
 
-ESTRUTURA (use exatamente estes títulos em maiúsculas, sem símbolos ou travessões decorativos):
-DADOS PESSOAIS
-OBJETIVO PROFISSIONAL
-RESUMO DE PERFIL
-FORMAÇÃO ACADÊMICA
-${dados.cursos ? "CURSOS E CERTIFICAÇÕES\n" : ""}HABILIDADES
-DISPONIBILIDADE
-INFORMAÇÕES COMPLEMENTARES
+ESTRUTURA OBRIGATÓRIA (siga exatamente esta ordem):
+- Primeira linha: apenas o nome completo da pessoa, sem nenhum título antes
+- Segunda linha: cidade, telefone e email separados por | 
+- Depois as seções em maiúsculas nesta ordem: OBJETIVO PROFISSIONAL, RESUMO DE PERFIL, FORMAÇÃO ACADÊMICA${dados.cursos ? ", CURSOS E CERTIFICAÇÕES" : ""}, HABILIDADES, DISPONIBILIDADE, INFORMAÇÕES COMPLEMENTARES
+
+NÃO coloque "DADOS PESSOAIS" como título antes do nome. O nome já é o cabeçalho.
 
 Escreve de forma humana e direta. Sem frases genéricas de IA, sem travessões decorativos. Objetivo e resumo devem soar como uma pessoa real falando sobre si mesma.`;
 
@@ -613,16 +611,17 @@ ${curriculo.split("\n").map((line, i) => {
           <div style={{ background: "#FFFFFF", border: "1px solid #E2E8F0", borderRadius: 12, padding: "28px 24px", marginBottom: 12, maxHeight: 440, overflowY: "auto" }}>
             {curriculo.split("\n").map((line, i) => {
               if (!line.trim()) return <div key={i} style={{ height: 8 }} />;
-              const isNome = i === 0;
-              const isContato = i === 1 && (line.includes("@") || line.includes("|"));
-              const isSecao = !isNome && !isContato && /^[A-ZÁÀÂÃÉÊÍÓÔÕÚÇ][A-ZÁÀÂÃÉÊÍÓÔÕÚÇ\s]{3,}$/.test(line.trim());
-              if (isNome) return <div key={i} style={{ textAlign: "center", marginBottom: 2 }}><h1 style={{ fontSize: 26, fontWeight: 900, color: "#1E293B", margin: 0 }}>{line}</h1></div>;
-              if (isContato) return <p key={i} style={{ fontSize: 11, color: "#475569", textAlign: "center", margin: "4px 0 6px" }}>{line}</p>;
-              if (isSecao) {
-                const isDadosPessoais = line.trim().toUpperCase() === "DADOS PESSOAIS";
-                if (isDadosPessoais) return <div key={i} style={{ fontSize: 9, color: "#94A3B8", textAlign: "center", textTransform: "uppercase", letterSpacing: 1, marginBottom: 12, borderBottom: "2px solid #2563EB", paddingBottom: 8 }}>{line}</div>;
-                return <div key={i} style={{ fontSize: 9, fontWeight: 800, color: "#2563EB", textTransform: "uppercase", letterSpacing: 1, borderBottom: "1px solid #E2E8F0", paddingBottom: 3, marginTop: 14, marginBottom: 6 }}>{line}</div>;
-              }
+              const nonEmpty = curriculo.split("\n").filter(l => l.trim());
+              const firstLine = nonEmpty[0];
+              const secondLine = nonEmpty[1];
+              const isNome = line.trim() === firstLine?.trim() && i === curriculo.split("\n").findIndex(l => l.trim());
+              const isContato = line.trim() === secondLine?.trim() && (line.includes("@") || line.includes("|") || /^[A-Za-z].*\//.test(line));
+              const isDadosPessoais = line.trim().toUpperCase() === "DADOS PESSOAIS";
+              const isSecao = !isNome && !isContato && !isDadosPessoais && /^[A-ZÁÀÂÃÉÊÍÓÔÕÚÇ][A-ZÁÀÂÃÉÊÍÓÔÕÚÇ\s]{3,}$/.test(line.trim());
+              if (isDadosPessoais) return null;
+              if (isNome) return <div key={i} style={{ textAlign: "center", paddingBottom: 10, marginBottom: 6, borderBottom: "2px solid #2563EB" }}><h1 style={{ fontSize: 24, fontWeight: 900, color: "#1E293B", margin: 0 }}>{line}</h1></div>;
+              if (isContato) return <p key={i} style={{ fontSize: 11, color: "#475569", textAlign: "center", margin: "4px 0 12px" }}>{line}</p>;
+              if (isSecao) return <div key={i} style={{ fontSize: 9, fontWeight: 800, color: "#2563EB", textTransform: "uppercase", letterSpacing: 1, borderBottom: "1px solid #E2E8F0", paddingBottom: 3, marginTop: 14, marginBottom: 6 }}>{line}</div>;
               return <p key={i} style={{ fontSize: 12, color: "#1E293B", lineHeight: 1.7, margin: "2px 0" }}>{line}</p>;
             })}
           </div>
