@@ -257,7 +257,7 @@ const SERIES = {
 
 const MESES = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
 const ANOS = Array.from({length: 10}, (_, i) => String(new Date().getFullYear() - i));
-const TIPOS_EXP = ["Emprego com carteira assinada","Estágio","Jovem Aprendiz","Freela / Autônomo","Trabalho em negócio da família","Voluntariado","Outro"];
+const TIPOS_EXP = ["CLT (carteira assinada)","Estágio","Jovem Aprendiz","Freelancer / Autônomo","PJ (Pessoa Jurídica)","Trabalho em negócio da família","Voluntariado","Outro"];
 
 function ExperienciaCard({ exp, idx, onChange, onRemove }) {
   const chg = (k, v) => onChange(idx, { ...exp, [k]: v });
