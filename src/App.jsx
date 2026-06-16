@@ -101,15 +101,15 @@ const COMP_INFO = {
 const TURNOS = ["Manhã", "Tarde", "Noite", "Manhã e Tarde", "Tarde e Noite", "Qualquer horário", "Fins de semana", "Período integral"];
 
 const CURSOS = [
-  { nome: "Escola Virtual Bradesco", url: "https://www.ev.org.br/cursos", areas: "Informática, Administração, IA, Inglês — +88 cursos gratuitos", badge: "TOP" },
-  { nome: "FIAP — Eu Capacito", url: "https://on.fiap.com.br/local/programaeucapacito/", areas: "Tecnologia, IA, Programação, Segurança — +250 cursos gratuitos", badge: "FIAP" },
-  { nome: "FGV Online", url: "https://educacao-executiva.fgv.br/cursos/gratuitos", areas: "Negócios, Gestão, Finanças, Direito, IA — +200 cursos gratuitos", badge: "FGV" },
-  { nome: "Harvard — HarvardX", url: "https://www.edx.org/school/harvardx", areas: "Computação, IA, Negócios, Dados — legendas em português", badge: "Harvard" },
-  { nome: "Google Skillshop", url: "https://skillshop.withgoogle.com", areas: "Marketing Digital, Analytics, IA — certificado Google", badge: "Google" },
+  { nome: "Escola Virtual Bradesco", url: "https://www.ev.org.br/cursos", areas: "Informática, Administração, IA, Inglês, +88 cursos gratuitos", badge: "TOP" },
+  { nome: "FIAP — Eu Capacito", url: "https://on.fiap.com.br/local/programaeucapacito/", areas: "Tecnologia, IA, Programação, Segurança, +250 cursos gratuitos", badge: "FIAP" },
+  { nome: "FGV Online", url: "https://educacao-executiva.fgv.br/cursos/gratuitos", areas: "Negócios, Gestão, Finanças, Direito, IA, +200 cursos gratuitos", badge: "FGV" },
+  { nome: "Harvard — HarvardX", url: "https://www.edx.org/school/harvardx", areas: "Computação, IA, Negócios, Dados, legendas em português", badge: "Harvard" },
+  { nome: "Google Skillshop", url: "https://skillshop.withgoogle.com", areas: "Marketing Digital, Analytics, IA, certificado Google", badge: "Google" },
   { nome: "Microsoft Learn", url: "https://learn.microsoft.com/pt-br/training/browse", areas: "Office, Power BI, Azure, IA", badge: "Microsoft" },
   { nome: "IBM SkillsBuild", url: "https://skillsbuild.org/pt-BR", areas: "IA, Dados, Cibersegurança, Cloud", badge: "IBM" },
   { nome: "SENAI Play", url: "https://play.senai.br/cursos", areas: "Tecnologia, Indústria, Qualidade", badge: "SENAI" },
-  { nome: "Khan Academy", url: "https://pt.khanacademy.org", areas: "Matemática, Programação, Ciências — 100% gratuito", badge: "Khan" },
+  { nome: "Khan Academy", url: "https://pt.khanacademy.org", areas: "Matemática, Programação, Ciências, 100% gratuito", badge: "Khan" },
   { nome: "SEBRAE Online", url: "https://www.sebrae.com.br/sites/PortalSebrae/cursosonline", areas: "Empreendedorismo, Vendas, Gestão", badge: "SEBRAE" },
 ];
 
@@ -639,7 +639,7 @@ Escreve de forma humana e direta. Sem frases genéricas de IA, sem travessões d
 Cria 4 dicas de como contar a história dessa pessoa numa entrevista. Para cada skill, sugere uma situação concreta que um jovem brasileiro pode ter vivido de verdade, focando em:
 Projetos escolares (feiras, apresentações, trabalhos em grupo), esportes e atividades coletivas, voluntariado e ação comunitária, criação de conteúdo, geração de renda própria, aprendizado autônomo, liderança informal em qualquer contexto.
 
-Não dê exemplos específicos nem nichos como "feira de ciências" ou "venda de bolo". Em vez disso, sugere perguntas que a pessoa pode se fazer pra lembrar de algo que viveu: "você já organizou alguma coisa?", "já ajudou alguém a resolver um problema?", "já aprendeu algo por conta própria?".
+Não dê exemplos específicos nem nichos. Em vez disso, sugere perguntas que abrem a memória da pessoa: você já organizou alguma coisa? Participou de esporte ou atividade em grupo? Fez algum voluntariado ou projeto na escola? Já ajudou alguém a resolver um problema? Já aprendeu algo por conta própria?
 
 O objetivo é abrir a memória da pessoa, não dar um roteiro pronto. Cada dica deve terminar com uma dica de como transformar qualquer situação que ela lembrar numa resposta natural na entrevista.
 
