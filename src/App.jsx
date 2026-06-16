@@ -316,6 +316,15 @@ function Perfil({ dados, onChange, onNext, onBack }) {
           <Label>Cursos que já fez (opcional)</Label>
           <input style={inputStyle} placeholder="Ex: Excel básico, inglês, informática..." value={dados.cursos || ""} onChange={e => onChange("cursos", e.target.value)} />
         </div>
+        <div style={{ gridColumn: "span 2" }}>
+          <Label>Já trabalhou ou fez algum freela? (opcional)</Label>
+          <textarea
+            style={{ ...inputStyle, resize: "vertical", minHeight: 80, lineHeight: 1.5 }}
+            placeholder="Conta aqui! Ex: trabalhei 6 meses como atendente numa lanchonete, fiz freela de design pra alguns clientes, ajudei no negócio da família... qualquer experiência conta!"
+            value={dados.experiencia || ""}
+            onChange={e => onChange("experiencia", e.target.value)}
+          />
+        </div>
       </div>
 
       <div style={{ display: "flex", gap: 10 }}>
@@ -505,12 +514,14 @@ ${dados.tipoFormacao ? `Formação: ${dados.tipoFormacao}${dados.serie ? ` — $
 ${dados.turno ? `Disponibilidade: ${dados.turno}` : ""}
 ${dados.cursos ? `Cursos: ${dados.cursos}` : ""}
 Skills identificadas: ${compLabels.join(", ")}
+${dados.experiencia ? `Experiências anteriores relatadas pela pessoa: ${dados.experiencia}` : ""}
 
 ESTRUTURA OBRIGATÓRIA (siga exatamente esta ordem):
 - Primeira linha: apenas o nome completo da pessoa, sem nenhum título antes
 - Segunda linha: cidade, telefone e email separados por | 
-- Depois as seções em maiúsculas nesta ordem: OBJETIVO PROFISSIONAL, RESUMO DE PERFIL, FORMAÇÃO ACADÊMICA${dados.cursos ? ", CURSOS E CERTIFICAÇÕES" : ""}, HABILIDADES, DISPONIBILIDADE, INFORMAÇÕES COMPLEMENTARES
+- Depois as seções em maiúsculas nesta ordem: OBJETIVO PROFISSIONAL, RESUMO DE PERFIL${dados.experiencia ? ", EXPERIÊNCIA PROFISSIONAL" : ""}, FORMAÇÃO ACADÊMICA${dados.cursos ? ", CURSOS E CERTIFICAÇÕES" : ""}, HABILIDADES, DISPONIBILIDADE, INFORMAÇÕES COMPLEMENTARES
 
+${dados.experiencia ? "Na seção EXPERIÊNCIA PROFISSIONAL: use o que a pessoa relatou e escreva de forma profissional, valorizando mesmo experiências informais como freela, trabalho em família ou bicos. Não invente cargos ou empresas que não foram mencionados." : "Não inclua seção de experiência profissional pois a pessoa não relatou nenhuma."}
 NÃO coloque "DADOS PESSOAIS" como título antes do nome. O nome já é o cabeçalho.
 
 Escreve de forma humana e direta. Sem frases genéricas de IA, sem travessões decorativos. Objetivo e resumo devem soar como uma pessoa real falando sobre si mesma.`;
