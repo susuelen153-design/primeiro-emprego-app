@@ -526,9 +526,11 @@ Cria 4 dicas de como contar a história dele numa entrevista. Para cada skill, s
 - Aprendizado autônomo (cursos online, tutoriais, projetos pessoais)
 - Liderança informal (organizar grupo, mediar conflito, coordenar algo)
 
-Evita exemplos genéricos e fúteis como passear com animal, fazer compras ou tarefas domésticas simples. Foca em realizações que mostrem competência real.
+Não dê exemplos específicos nem nichos como "feira de ciências" ou "venda de bolo". Em vez disso, sugere perguntas que a pessoa pode se fazer pra lembrar de algo que viveu: "você já organizou alguma coisa?", "já ajudou alguém a resolver um problema?", "já aprendeu algo por conta própria?".
 
-Mostra como transformar cada situação numa resposta direta e natural na entrevista. Escreve como um amigo mais velho, sem frases motivacionais e sem travessões excessivos.`;
+O objetivo é abrir a memória da pessoa, não dar um roteiro pronto. Cada dica deve terminar com uma dica de como transformar qualquer situação que ela lembrar numa resposta natural na entrevista.
+
+Escreve como um amigo mais velho, sem frases motivacionais, sem travessões excessivos e sem exemplos que nicham demais.`;
 
       try {
         const [cv, d] = await Promise.all([
