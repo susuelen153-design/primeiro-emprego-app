@@ -118,7 +118,7 @@ const DICAS_ENTREVISTA = [
   { icon: "⏰", titulo: "Chega antes do horário", dica: "Uns 10 minutinhos antes já basta. Pesquisa o caminho com antecedência pra não ter surpresa." },
   { icon: "🔍", titulo: "Pesquisa a empresa antes", dica: "Dá uma olhada no site ou Instagram deles. Quando perguntarem por que você quer trabalhar lá, você vai ter o que responder de verdade." },
   { icon: "💬", titulo: "Suas histórias valem ouro", dica: "Não precisa ter trabalhado antes. Conta sobre algo que organizou, vendeu, ensinou ou ajudou. Isso é experiência de verdade." },
-  { icon: "👀", titulo: "Olha nos olhos e relaxa", dica: "Nervoso é normal, todo mundo fica. Respira fundo, fala com calma e olha pra pessoa. Isso já passa muita confiança." },
+  { icon: "👀", titulo: "Olha nos olhos e relaxa", dica: "Nervosismo é normal, todo mundo sente. Respira fundo, fala com calma e olha pra pessoa. Isso já passa muita confiança." },
   { icon: "❓", titulo: "Pergunta sobre a vaga", dica: "No final, pergunta algo tipo: quais são as principais tarefas do dia a dia? Mostra que você quer entender de verdade." },
   { icon: "🤐", titulo: "Sem falar mal de ninguém", dica: "Nem de escola, professores ou colegas. Não precisa fingir que tudo foi perfeito, só guarda as críticas pra você." },
   { icon: "🙏", titulo: "Manda uma mensagem depois", dica: "Um recado no WhatsApp ou e-mail agradecendo a conversa. Quase ninguém faz isso e quem faz fica na memória." },
@@ -213,7 +213,7 @@ function Inicio({ onNext }) {
         PrimeiroEmprego
       </h1>
       <p style={{ fontSize: 14, color: C.gray, marginBottom: 28, lineHeight: 1.7 }}>
-        Descobre suas skills, monta seu currículo<br />e chega na entrevista preparado 🚀
+        Descobre suas skills, monta seu currículo<br />e chega preparado na entrevista 🚀
       </p>
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, marginBottom: 28 }}>
@@ -554,7 +554,7 @@ function Chat({ dados, comps }) {
     setMsgs(newMsgs);
     setInput("");
     setLoading(true);
-    const system = `Você é um amigo mais velho ajudando ${dados.nome || "um jovem"} a conseguir o primeiro emprego no Brasil. Skills identificadas: ${comps.map(id => COMP_INFO[id]?.label).filter(Boolean).join(", ")}. Fale de forma natural, direta e descontraída como um amigo de verdade. Sem frases motivacionais forçadas, sem travessões excessivos, sem formalidade. Seja breve e prático. Use emojis com moderação.`;
+    const system = `Você é alguém mais experiente ajudando ${dados.nome || "um jovem"} a conseguir o primeiro emprego no Brasil. Skills identificadas: ${comps.map(id => COMP_INFO[id]?.label).filter(Boolean).join(", ")}. Fale de forma natural, direta e descontraída como um amigo de verdade. Sem frases motivacionais forçadas, sem travessões excessivos, sem formalidade. Seja breve e prático. Use emojis com moderação.`;
     const history = newMsgs.slice(1).map(m => ({ role: m.role, content: m.content }));
     try {
       const text = await callIA(history, system);
@@ -636,7 +636,7 @@ Escreve de forma humana e direta. Sem frases genéricas de IA, sem travessões d
 
       const promptDicas = `${dados.nome || "Este jovem"} fez um quiz e as principais skills são: ${compLabels.join(", ")}.
 
-Cria 4 dicas de como contar a história dele numa entrevista. Para cada skill, sugere uma situação concreta que um adolescente brasileiro pode ter vivido de verdade, focando em:
+Cria 4 dicas de como contar a história dessa pessoa numa entrevista. Para cada skill, sugere uma situação concreta que um jovem brasileiro pode ter vivido de verdade, focando em:
 - Projetos escolares relevantes (feiras, apresentações, trabalhos que deram resultado)
 - Criação de conteúdo digital (edição, redes sociais, design, programação)
 - Geração de renda própria (venda de produtos, serviços, freelas)
@@ -653,8 +653,8 @@ Escreve como um amigo mais velho, sem frases motivacionais, sem travessões exce
 
       try {
         const [cv, d] = await Promise.all([
-          callIA([{ role: "user", content: promptCV }], "Você cria currículos para jovens brasileiros. Responda apenas com o currículo formatado, sem comentários. Linguagem humana e direta, sem clichês de IA, sem travessões decorativos. Evite palavras como 'discutir', 'anseio', 'vislumbrar', 'almejo' e outras que soam artificiais. Use frases naturais como 'trocar ideias', 'contribuir com', 'aprender com a equipe', 'fazer parte de'."),
-          callIA([{ role: "user", content: promptDicas }], "Você é um amigo mais velho ajudando um adolescente brasileiro a se preparar para entrevistas. Linguagem natural, direta e descontraída."),
+          callIA([{ role: "user", content: promptCV }], "Você cria currículos para jovens no Brasil. Responda apenas com o currículo formatado, sem comentários. Use linguagem humana, direta e neutra — sem assumir gênero. Evite palavras como 'discutir', 'anseio', 'vislumbrar', 'almejo'. Use frases naturais como 'trocar ideias', 'contribuir com', 'aprender com a equipe', 'fazer parte de'."),
+          callIA([{ role: "user", content: promptDicas }], "Você é alguém mais experiente ajudando um jovem brasileiro a se preparar para entrevistas. Linguagem natural, direta e descontraída. Use linguagem neutra, sem assumir gênero."),
         ]);
         setCurriculo(cv);
         setDicas(d);
