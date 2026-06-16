@@ -98,14 +98,14 @@ const CURSOS = [
 ];
 
 const DICAS_ENTREVISTA = [
-  { icon: "✨", titulo: "Vista-se com conforto e respeito", dica: "Use o que te deixa confiante! Prefira roupas arrumadas — evite bonés, regatas e chinelos. Não precisa ser formal, só demonstrar cuidado." },
-  { icon: "⏰", titulo: "Chegue antes do horário", dica: "Apareça 10-15 minutos antes. Pesquise o trajeto com antecedência. Pontualidade já é um diferencial enorme!" },
-  { icon: "🔍", titulo: "Pesquise a empresa antes", dica: "Saiba o que ela faz e quais são seus valores. Quando perguntarem 'por que quer trabalhar aqui?', você vai arrasar." },
-  { icon: "💬", titulo: "Use exemplos reais da sua vida", dica: "Experiência não é só emprego formal. Conte sobre vendas que fez, projetos da escola, trabalho voluntário, cuidados com a família." },
-  { icon: "👀", titulo: "Contato visual e postura", dica: "Olhe nos olhos ao falar, sente-se ereto e sorria. Linguagem corporal transmite confiança mesmo quando você está nervoso." },
-  { icon: "❓", titulo: "Pergunte sobre a vaga", dica: "'Quais as principais responsabilidades do cargo?' Fazer perguntas mostra interesse e maturidade profissional." },
-  { icon: "🤐", titulo: "Nunca fale mal de ninguém", dica: "Nem de escola, nem de professor, nem de amigos. Isso demonstra maturidade e profissionalismo." },
-  { icon: "🙏", titulo: "Agradeça após a entrevista", dica: "Um WhatsApp ou e-mail agradecendo a oportunidade. Poucos fazem isso — e quem faz é lembrado!" },
+  { icon: "✨", titulo: "Vista o que te faz sentir bem", dica: "Não existe roupa certa ou errada. O que importa é você se sentir confortável e confiante. Só evita boné e bermuda, que passam uma ideia de descuido." },
+  { icon: "⏰", titulo: "Chega antes do horário", dica: "Apareça uns 10 minutinhos antes. Pesquise o caminho com antecedência para não ter surpresa no dia." },
+  { icon: "🔍", titulo: "Pesquise a empresa antes", dica: "Dá uma olhada no site ou Instagram deles. Quando perguntarem por que você quer trabalhar lá, você vai ter o que responder de verdade." },
+  { icon: "💬", titulo: "Suas histórias reais valem ouro", dica: "Você não precisa ter trabalhado antes. Conta sobre algo que organizou, vendeu, ensinou ou ajudou. Isso é experiência de verdade." },
+  { icon: "👀", titulo: "Olha nos olhos e relaxa", dica: "Nervoso é normal, todo mundo fica. Respira fundo, fala com calma e olha pra pessoa. Isso já passa muita confiança." },
+  { icon: "❓", titulo: "Pergunta sobre a vaga", dica: "No final, pergunta algo como: quais são as principais tarefas do dia a dia? Mostra que você está interessado de verdade." },
+  { icon: "🤐", titulo: "Sem falar mal de ninguém", dica: "Nem de escola, professores ou colegas. Não precisa fingir que tudo foi perfeito, mas guarda as críticas pra você." },
+  { icon: "🙏", titulo: "Manda uma mensagem depois", dica: "Um recado no WhatsApp ou e-mail agradecendo a conversa. Quase ninguém faz isso e quem faz fica na memória." },
 ];
 
 // ── API ─────────────────────────────────────────────────
