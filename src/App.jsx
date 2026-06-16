@@ -213,7 +213,7 @@ function Inicio({ onNext }) {
         PrimeiroEmprego
       </h1>
       <p style={{ fontSize: 14, color: C.gray, marginBottom: 28, lineHeight: 1.7 }}>
-        Descubra suas skills, monte seu currículo<br />e chega preparado na entrevista 🚀
+        Descubra suas skills, monte seu currículo<br />e chegue preparado na entrevista 🚀
       </p>
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, marginBottom: 28 }}>
